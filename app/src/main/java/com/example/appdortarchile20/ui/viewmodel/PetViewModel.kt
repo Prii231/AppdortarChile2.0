@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appdortarchile20.data.local.AppDatabase
 import com.example.appdortarchile20.data.model.Pet
+import com.example.appdortarchile20.data.model.UrgenciaReporte
 import com.example.appdortarchile20.data.model.User
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,14 +23,23 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     val allPets: StateFlow<List<Pet>> = dao.getAllPets()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+    // Estado de Reportes de Urgencia
+    val allReportes: StateFlow<List<UrgenciaReporte>> = dao.getAllReportes()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
     // Estado de Login
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState = _loginState.asStateFlow()
+
+    // Usuario autenticado actualmente
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser = _currentUser.asStateFlow()
 
     fun login(email: String, pass: String) {
         viewModelScope.launch {
             val user = dao.getUserByEmail(email)
             if (user != null && user.password == pass) {
+                _currentUser.value = user
                 _loginState.value = LoginState.Success(user)
             } else {
                 _loginState.value = LoginState.Error("Correo o contraseña incorrectos")
@@ -41,6 +51,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 dao.registerUser(user)
+                _currentUser.value = user
                 _loginState.value = LoginState.Success(user)
             } catch (e: Exception) {
                 _loginState.value = LoginState.Error("Error al registrar: ${e.message}")
@@ -57,6 +68,18 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     fun deletePet(pet: Pet) {
         viewModelScope.launch {
             dao.deletePet(pet)
+        }
+    }
+
+    fun addReporte(reporte: UrgenciaReporte) {
+        viewModelScope.launch {
+            dao.insertReporte(reporte)
+        }
+    }
+
+    fun deleteReporte(reporte: UrgenciaReporte) {
+        viewModelScope.launch {
+            dao.deleteReporte(reporte)
         }
     }
 

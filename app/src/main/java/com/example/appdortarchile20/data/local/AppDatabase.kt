@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.*
 import com.example.appdortarchile20.data.model.User
 import com.example.appdortarchile20.data.model.Pet
+import com.example.appdortarchile20.data.model.UrgenciaReporte
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -16,24 +17,34 @@ interface AppDao {
     suspend fun getUserByEmail(email: String): User?
 
     // --- MASCOTAS ---
-
-    // Cambiado a IGNORE: Si el ID ya existe, no hará nada (evita duplicados)
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addPet(pet: Pet)
 
     @Query("SELECT * FROM pets")
     fun getAllPets(): Flow<List<Pet>>
 
-    // Función extra: Útil para que el usuario pueda borrar su publicación
     @Delete
     suspend fun deletePet(pet: Pet)
 
-    // Función extra: Limpiar toda la tabla (útil para pruebas)
     @Query("DELETE FROM pets")
     suspend fun deleteAllPets()
+
+    // --- URGENCIAS ---
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertReporte(reporte: UrgenciaReporte)
+
+    @Delete
+    suspend fun deleteReporte(reporte: UrgenciaReporte)
+
+    @Query("SELECT * FROM urgencias ORDER BY horaReporte DESC")
+    fun getAllReportes(): Flow<List<UrgenciaReporte>>
 }
 
-@Database(entities = [User::class, Pet::class], version = 2, exportSchema = false)
+@Database(
+    entities = [User::class, Pet::class, UrgenciaReporte::class],
+    version = 3,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun appDao(): AppDao
 
@@ -48,8 +59,6 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "appdoptar_database"
                 )
-                    // Esto permite que si cambias algo en el modelo Pet o User más adelante,
-                    // la app no se cierre (aunque borrará los datos antiguos)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
