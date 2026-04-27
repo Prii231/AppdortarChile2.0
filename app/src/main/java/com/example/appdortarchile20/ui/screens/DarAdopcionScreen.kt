@@ -244,7 +244,8 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
                     isSterilized = isSterilized,
                     description = description,
                     ownerName = currentUser?.name ?: "Anónimo",
-                    ownerPhone = currentUser?.phone ?: ""
+                    ownerPhone = currentUser?.phone ?: "",
+                    ownerEmail = currentUser?.email ?: ""
                 )
                 viewModel.addPet(newPet)
                 onSaved()

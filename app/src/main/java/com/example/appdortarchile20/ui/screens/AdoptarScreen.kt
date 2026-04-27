@@ -11,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.appdortarchile20.data.ChileData
@@ -22,6 +21,7 @@ import com.example.appdortarchile20.ui.viewmodel.PetViewModel
 @Composable
 fun AdoptarScreen(viewModel: PetViewModel) {
     val pets by viewModel.allPets.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
 
     // Estados de filtros
     var filterType by remember { mutableStateOf("Todos") }
@@ -113,10 +113,13 @@ fun AdoptarScreen(viewModel: PetViewModel) {
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(pet.name, style = MaterialTheme.typography.headlineSmall)
-                                Text("${pet.type} • ${pet.region}", color = Color.Gray)
+                                Text("${pet.type} • ${pet.region}", color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            IconButton(onClick = { viewModel.deletePet(pet) }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color.Red)
+                            // Solo el dueño puede eliminar su publicación
+                            if (currentUser != null && pet.ownerEmail == currentUser!!.email) {
+                                IconButton(onClick = { viewModel.deletePet(pet) }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                                }
                             }
                         }
                     }

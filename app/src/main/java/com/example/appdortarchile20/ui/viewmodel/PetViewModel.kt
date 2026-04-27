@@ -88,9 +88,9 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             if (allPets.value.isEmpty()) {
                 val dummyPets = listOf(
-                    Pet(1, "Firulais", "Perro", "2 años", "Metropolitana", "Santiago", "https://placedog.net/500", true, true, "Es muy juguetón.", "Juan Pérez", "+5691234"),
-                    Pet(2, "Mimi", "Gato", "6 meses", "Valparaíso", "Viña del Mar", "https://placekitten.com/500", true, false, "Gatita muy tranquila.", "María Soto", "+5698765"),
-                    Pet(3, "Pipo", "Otro", "1 año", "Biobío", "Concepción", "https://picsum.photos/id/1025/500", false, false, "Conejito sociable.", "Andrés Jara", "+5695554")
+                    Pet(1, "Firulais", "Perro", "2 años", "Metropolitana", "Santiago", "https://placedog.net/500", true, true, "Es muy juguetón.", "Juan Pérez", "+5691234", "juan@example.com"),
+                    Pet(2, "Mimi", "Gato", "6 meses", "Valparaíso", "Viña del Mar", "https://placekitten.com/500", true, false, "Gatita muy tranquila.", "María Soto", "+5698765", "maria@example.com"),
+                    Pet(3, "Pipo", "Otro", "1 año", "Biobío", "Concepción", "https://picsum.photos/id/1025/500", false, false, "Conejito sociable.", "Andrés Jara", "+5695554", "andres@example.com")
                 )
                 dummyPets.forEach { dao.addPet(it) }
             }

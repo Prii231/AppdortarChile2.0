@@ -82,6 +82,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 }
 dependencies {
+    implementation(libs.androidx.compose.ui.graphics)
     // Librería para OpenStreetMap
     implementation("org.osmdroid:osmdroid-android:6.1.18")
 }

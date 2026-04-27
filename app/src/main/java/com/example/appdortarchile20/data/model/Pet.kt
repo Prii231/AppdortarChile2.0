@@ -17,5 +17,6 @@ data class Pet(
     val isSterilized: Boolean, // Si está o no operado
     val description: String,   // Descripción de la mascota
     val ownerName: String,     // Nombre de quien da en adopción
-    val ownerPhone: String     // Teléfono de contacto
+    val ownerPhone: String,    // Teléfono de contacto
+    val ownerEmail: String = ""// Email del dueño para identificarlo
 )
