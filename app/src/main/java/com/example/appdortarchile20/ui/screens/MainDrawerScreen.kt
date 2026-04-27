@@ -60,6 +60,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+        gesturesEnabled = currentScreen != "urgencias",
         drawerContent = {
             ModalDrawerSheet(
                 drawerContainerColor = Color(0xFFFFFBF5),

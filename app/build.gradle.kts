@@ -85,4 +85,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     // Librería para OpenStreetMap
     implementation("org.osmdroid:osmdroid-android:6.1.18")
+    // Ubicación GPS
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
