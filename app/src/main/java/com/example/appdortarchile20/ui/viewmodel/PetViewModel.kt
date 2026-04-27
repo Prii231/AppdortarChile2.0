@@ -59,6 +59,11 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun logout() {
+        _currentUser.value = null
+        _loginState.value = LoginState.Idle
+    }
+
     fun addPet(pet: Pet) {
         viewModelScope.launch {
             dao.addPet(pet)

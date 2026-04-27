@@ -89,9 +89,16 @@ fun AppNavigation(viewModel: PetViewModel) {
             )
         }
 
-        // 4. Contenedor Principal (Donde vive el Drawer y Urgencias)
+        // 4. Contenedor Principal
         composable("main_content") {
-            MainDrawerScreen(viewModel = viewModel)
+            MainDrawerScreen(
+                viewModel = viewModel,
+                onLogout = {
+                    navController.navigate("login") {
+                        popUpTo("main_content") { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

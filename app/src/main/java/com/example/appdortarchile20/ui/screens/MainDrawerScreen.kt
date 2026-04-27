@@ -18,16 +18,45 @@ import com.example.appdortarchile20.ui.viewmodel.PetViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainDrawerScreen(viewModel: PetViewModel) {
+fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var currentScreen by remember { mutableStateOf("adoptar") }
+    val currentUser by viewModel.currentUser.collectAsState()
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Paleta cálida
     val naranjaPrincipal = Color(0xFFE85D04)
     val naranjaClaro     = Color(0xFFFB8500)
     val verdeSalvia      = Color(0xFF4A7C59)
     val crema            = Color(0xFFFFF5EB)
+
+    // Dialog de confirmación de cierre de sesión
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            icon = { Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color(0xFFD32F2F)) },
+            title = { Text("Cerrar sesión", fontWeight = FontWeight.Bold) },
+            text = { Text("¿Estás seguro de que deseas cerrar tu sesión?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutDialog = false
+                        viewModel.logout()
+                        onLogout()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+                ) {
+                    Text("Cerrar sesión")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -40,7 +69,7 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(160.dp)
+                        .height(190.dp)
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(naranjaPrincipal, naranjaClaro)
@@ -61,6 +90,20 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
                             fontSize = 13.sp,
                             modifier = Modifier.padding(top = 4.dp)
                         )
+                        if (currentUser != null) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = currentUser!!.name,
+                                color = Color.White,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = currentUser!!.email,
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontSize = 11.sp
+                            )
+                        }
                     }
                 }
 
@@ -147,6 +190,24 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
                     ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
+
+                Spacer(Modifier.weight(1f))
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp),
+                    color = Color(0xFFEED8C0)
+                )
+
+                // Botón cerrar sesión
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color(0xFFD32F2F)) },
+                    label = { Text("Cerrar sesión", fontWeight = FontWeight.SemiBold, color = Color(0xFFD32F2F)) },
+                    selected = false,
+                    onClick = { showLogoutDialog = true },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+
+                Spacer(Modifier.height(8.dp))
             }
         }
     ) {
