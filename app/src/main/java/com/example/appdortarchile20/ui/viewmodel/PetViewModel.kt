@@ -64,6 +64,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         _loginState.value = LoginState.Idle
     }
 
+    fun updateUser(user: User) {
+        viewModelScope.launch {
+            dao.updateUser(user)
+            _currentUser.value = user
+        }
+    }
+
     fun addPet(pet: Pet) {
         viewModelScope.launch {
             dao.addPet(pet)

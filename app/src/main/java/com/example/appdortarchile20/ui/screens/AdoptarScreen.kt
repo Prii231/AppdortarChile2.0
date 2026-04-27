@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.appdortarchile20.data.ChileData
@@ -28,6 +29,7 @@ fun AdoptarScreen(viewModel: PetViewModel) {
     var filterRegion by remember { mutableStateOf("Todas las Regiones") }
     var expandedRegion by remember { mutableStateOf(false) }
     var selectedPet by remember { mutableStateOf<Pet?>(null) }
+    var petAEliminar by remember { mutableStateOf<Pet?>(null) }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -117,7 +119,7 @@ fun AdoptarScreen(viewModel: PetViewModel) {
                             }
                             // Solo el dueño puede eliminar su publicación
                             if (currentUser != null && pet.ownerEmail == currentUser!!.email) {
-                                IconButton(onClick = { viewModel.deletePet(pet) }) {
+                                IconButton(onClick = { petAEliminar = pet }) {
                                     Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
                                 }
                             }
@@ -130,5 +132,37 @@ fun AdoptarScreen(viewModel: PetViewModel) {
 
     if (selectedPet != null) {
         PetDetailDialog(pet = selectedPet!!, onDismiss = { selectedPet = null })
+    }
+
+    if (petAEliminar != null) {
+        AlertDialog(
+            onDismissRequest = { petAEliminar = null },
+            icon = {
+                Icon(Icons.Default.Delete, contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error)
+            },
+            title = { Text("¿Eliminar publicación?", fontWeight = FontWeight.Bold) },
+            text = {
+                Text("¿Estás seguro de que deseas eliminar a ${petAEliminar!!.name}? Esta acción no se puede deshacer.")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deletePet(petAEliminar!!)
+                        petAEliminar = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { petAEliminar = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }

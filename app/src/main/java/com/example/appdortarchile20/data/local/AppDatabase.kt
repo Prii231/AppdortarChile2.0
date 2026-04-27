@@ -13,6 +13,9 @@ interface AppDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun registerUser(user: User)
 
+    @Update
+    suspend fun updateUser(user: User)
+
     @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
     suspend fun getUserByEmail(email: String): User?
 

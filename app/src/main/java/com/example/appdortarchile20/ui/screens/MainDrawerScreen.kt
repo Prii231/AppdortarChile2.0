@@ -111,6 +111,17 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = naranjaPrincipal) },
+                    label = { Text("Mi Perfil", fontWeight = FontWeight.SemiBold) },
+                    selected = currentScreen == "perfil",
+                    onClick = { currentScreen = "perfil"; scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFFFF0E0)
+                    ),
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+
+                NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Pets, contentDescription = null, tint = naranjaPrincipal) },
                     label = { Text("Adoptar", fontWeight = FontWeight.SemiBold) },
                     selected = currentScreen == "adoptar",
@@ -224,6 +235,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                                 "blog"       -> "Consejos y Blog"
                                 "nosotros"   -> "Nuestra Misión"
                                 "donaciones" -> "Campañas de Donación"
+                                "perfil"     -> "Mi Perfil"
                                 else         -> "Contacto"
                             },
                             fontWeight = FontWeight.Bold
@@ -250,6 +262,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                     "blog"       -> BlogScreen()
                     "nosotros"   -> NosotrosScreen()
                     "donaciones" -> DonacionesScreen()
+                    "perfil"     -> PerfilScreen(viewModel)
                     "contacto"   -> ContactoScreen()
                 }
             }
