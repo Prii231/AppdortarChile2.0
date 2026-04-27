@@ -10,7 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,37 +21,39 @@ import com.example.appdortarchile20.ui.viewmodel.PetViewModel
 fun MainDrawerScreen(viewModel: PetViewModel) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    // Cambiamos el estado inicial a "adoptar" o la que prefieras
     var currentScreen by remember { mutableStateOf("adoptar") }
 
-    val azulInstitucional = Color(0xFF003399)
+    // Paleta cálida
+    val naranjaPrincipal = Color(0xFFE85D04)
+    val naranjaClaro     = Color(0xFFFB8500)
+    val verdeSalvia      = Color(0xFF4A7C59)
+    val crema            = Color(0xFFFFF5EB)
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
-                drawerContainerColor = Color(0xFFFDFDFD),
+                drawerContainerColor = Color(0xFFFFFBF5),
                 modifier = Modifier.width(310.dp)
             ) {
-                // --- CABECERA (LOGO UNIFORME) ---
+                // Cabecera con gradiente cálido
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(150.dp)
+                        .height(160.dp)
                         .background(
                             brush = Brush.verticalGradient(
-                                colors = listOf(azulInstitucional, Color(0xFF0055CC))
+                                colors = listOf(naranjaPrincipal, naranjaClaro)
                             )
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("App", fontSize = 26.sp, fontWeight = FontWeight.Black, color = Color.White)
-                            Text("Doptar", fontSize = 26.sp, fontWeight = FontWeight.Black, color = Color(0xFF99CCFF))
+                            Text("App",    fontSize = 28.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            Text("Doptar", fontSize = 28.sp, fontWeight = FontWeight.Black, color = crema)
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Chile", fontSize = 26.sp, fontWeight = FontWeight.Black, color = Color(0xFFEF5350))
+                            Text("Chile",  fontSize = 28.sp, fontWeight = FontWeight.Black, color = verdeSalvia)
                         }
                         Text(
                             text = "Encuentra tu alma gemela <3",
@@ -65,87 +66,85 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // --- OPCIONES DEL MENÚ ---
-
-                // Item: Adoptar
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Pets, contentDescription = null, tint = azulInstitucional) },
+                    icon = { Icon(Icons.Default.Pets, contentDescription = null, tint = naranjaPrincipal) },
                     label = { Text("Adoptar", fontWeight = FontWeight.SemiBold) },
                     selected = currentScreen == "adoptar",
-                    onClick = {
-                        currentScreen = "adoptar"
-                        scope.launch { drawerState.close() }
-                    },
+                    onClick = { currentScreen = "adoptar"; scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFFFF0E0)
+                    ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
-                // NUEVO ITEM: URGENCIAS (MAPA)
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = Color.Red) },
-                    label = { Text("Urgencias", fontWeight = FontWeight.ExtraBold, color = Color.Red) },
+                    icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFD32F2F)) },
+                    label = { Text("Urgencias", fontWeight = FontWeight.ExtraBold, color = Color(0xFFD32F2F)) },
                     selected = currentScreen == "urgencias",
-                    onClick = {
-                        currentScreen = "urgencias"
-                        scope.launch { drawerState.close() }
-                    },
+                    onClick = { currentScreen = "urgencias"; scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFFFEBEE)
+                    ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
-                // NUEVO ITEM: DONACIONES
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Favorite, contentDescription = null, tint = Color(0xFFEF5350)) },
+                    icon = { Icon(Icons.Default.Favorite, contentDescription = null, tint = Color(0xFFE85D04)) },
                     label = { Text("Donaciones", fontWeight = FontWeight.SemiBold) },
                     selected = currentScreen == "donaciones",
-                    onClick = {
-                        currentScreen = "donaciones"
-                        scope.launch { drawerState.close() }
-                    },
+                    onClick = { currentScreen = "donaciones"; scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFFFF0E0)
+                    ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.AddCircle, contentDescription = null, tint = azulInstitucional) },
+                    icon = { Icon(Icons.Default.AddCircle, contentDescription = null, tint = verdeSalvia) },
                     label = { Text("Dar en Adopción", fontWeight = FontWeight.SemiBold) },
                     selected = currentScreen == "dar",
-                    onClick = {
-                        currentScreen = "dar"
-                        scope.launch { drawerState.close() }
-                    },
+                    onClick = { currentScreen = "dar"; scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFEDF5EF)
+                    ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.MenuBook, contentDescription = null, tint = azulInstitucional) },
+                    icon = { Icon(Icons.Default.MenuBook, contentDescription = null, tint = naranjaPrincipal) },
                     label = { Text("Blog", fontWeight = FontWeight.SemiBold) },
                     selected = currentScreen == "blog",
-                    onClick = {
-                        currentScreen = "blog"
-                        scope.launch { drawerState.close() }
-                    },
+                    onClick = { currentScreen = "blog"; scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFFFF0E0)
+                    ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 28.dp))
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 12.dp, horizontal = 28.dp),
+                    color = Color(0xFFEED8C0)
+                )
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Info, contentDescription = null, tint = azulInstitucional) },
+                    icon = { Icon(Icons.Default.Info, contentDescription = null, tint = naranjaPrincipal) },
                     label = { Text("Nosotros", fontWeight = FontWeight.SemiBold) },
                     selected = currentScreen == "nosotros",
-                    onClick = {
-                        currentScreen = "nosotros"
-                        scope.launch { drawerState.close() }
-                    },
+                    onClick = { currentScreen = "nosotros"; scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFFFF0E0)
+                    ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Email, contentDescription = null, tint = azulInstitucional) },
+                    icon = { Icon(Icons.Default.Email, contentDescription = null, tint = naranjaPrincipal) },
                     label = { Text("Contacto", fontWeight = FontWeight.SemiBold) },
                     selected = currentScreen == "contacto",
-                    onClick = {
-                        currentScreen = "contacto"
-                        scope.launch { drawerState.close() }
-                    },
+                    onClick = { currentScreen = "contacto"; scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFFFF0E0)
+                    ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
             }
@@ -156,14 +155,14 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
                 TopAppBar(
                     title = {
                         Text(
-                            text = when(currentScreen) {
-                                "adoptar" -> "Mascotas en Adopción"
-                                "urgencias" -> "Mapa de Urgencias"
-                                "dar" -> "Publicar Mascota"
-                                "blog" -> "Consejos y Blog"
-                                "nosotros" -> "Nuestra Misión"
+                            text = when (currentScreen) {
+                                "adoptar"    -> "Mascotas en Adopción"
+                                "urgencias"  -> "Mapa de Urgencias"
+                                "dar"        -> "Publicar Mascota"
+                                "blog"       -> "Consejos y Blog"
+                                "nosotros"   -> "Nuestra Misión"
                                 "donaciones" -> "Campañas de Donación"
-                                else -> "Contacto"
+                                else         -> "Contacto"
                             },
                             fontWeight = FontWeight.Bold
                         )
@@ -174,7 +173,7 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = azulInstitucional,
+                        containerColor = naranjaPrincipal,
                         titleContentColor = Color.White,
                         navigationIconContentColor = Color.White
                     )
@@ -183,13 +182,13 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
                 when (currentScreen) {
-                    "adoptar" -> AdoptarScreen(viewModel)
-                    "urgencias" -> UrgenciasScreen(viewModel = viewModel)
-                    "dar" -> DarAdopcionScreen(viewModel, onSaved = { currentScreen = "adoptar" })
-                    "blog" -> BlogScreen()
-                    "nosotros" -> NosotrosScreen()
+                    "adoptar"    -> AdoptarScreen(viewModel)
+                    "urgencias"  -> UrgenciasScreen(viewModel = viewModel)
+                    "dar"        -> DarAdopcionScreen(viewModel, onSaved = { currentScreen = "adoptar" })
+                    "blog"       -> BlogScreen()
+                    "nosotros"   -> NosotrosScreen()
                     "donaciones" -> DonacionesScreen()
-                    "contacto" -> ContactoScreen()
+                    "contacto"   -> ContactoScreen()
                 }
             }
         }

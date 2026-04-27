@@ -28,13 +28,13 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     val loginState by viewModel.loginState.collectAsState()
 
-    // Colores institucionales
-    val azulInstitucional = Color(0xFF003399)
-    val azulClaro = Color(0xFF0055CC)
-    val celesteLogo = Color(0xFF99CCFF)
-    val rojoChile = Color(0xFFEF5350)
+    // Paleta cálida
+    val naranjaPrincipal = Color(0xFFE85D04)
+    val naranjaClaro     = Color(0xFFFB8500)
+    val verdeSalvia      = Color(0xFF4A7C59)
+    val crema            = Color(0xFFFFF5EB)
 
-    // --- ANIMACIÓN DEL CORAZÓN ---
+    // Animación del corazón
     val infiniteTransition = rememberInfiniteTransition(label = "HeartBeat")
     val heartScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -47,18 +47,15 @@ fun LoginScreen(
     )
 
     LaunchedEffect(loginState) {
-        if (loginState is LoginState.Success) {
-            onLoginSuccess()
-        }
+        if (loginState is LoginState.Success) onLoginSuccess()
     }
 
-    // Contenedor principal con Degradado
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(azulInstitucional, azulClaro)
+                    colors = listOf(naranjaPrincipal, naranjaClaro)
                 )
             )
     ) {
@@ -69,15 +66,15 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // --- LOGO TRICOLOR ---
+            // Logo tricolor cálido
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("App", fontSize = 38.sp, fontWeight = FontWeight.Black, color = Color.White)
-                Text("Doptar", fontSize = 38.sp, fontWeight = FontWeight.Black, color = celesteLogo)
+                Text("App",    fontSize = 38.sp, fontWeight = FontWeight.Black, color = Color.White)
+                Text("Doptar", fontSize = 38.sp, fontWeight = FontWeight.Black, color = crema)
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Chile", fontSize = 38.sp, fontWeight = FontWeight.Black, color = rojoChile)
+                Text("Chile",  fontSize = 38.sp, fontWeight = FontWeight.Black, color = verdeSalvia)
             }
 
-            // --- ESCLOGAN CON CORAZÓN QUE PALPITA ---
+            // Eslogan con corazón
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Encuentra tu alma gemela ",
@@ -86,19 +83,19 @@ fun LoginScreen(
                 )
                 Text(
                     text = "<3",
-                    color = rojoChile,
+                    color = crema,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.scale(heartScale) // Aquí se aplica el latido
+                    modifier = Modifier.scale(heartScale)
                 )
             }
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // --- FORMULARIO (Caja Blanca Semi-transparente para legibilidad) ---
+            // Formulario
             Card(
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.1f)),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.15f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
@@ -111,7 +108,8 @@ fun LoginScreen(
                             unfocusedTextColor = Color.White,
                             focusedTextColor = Color.White,
                             unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-                            focusedBorderColor = Color.White
+                            focusedBorderColor = Color.White,
+                            cursorColor = Color.White
                         )
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -125,7 +123,8 @@ fun LoginScreen(
                             unfocusedTextColor = Color.White,
                             focusedTextColor = Color.White,
                             unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-                            focusedBorderColor = Color.White
+                            focusedBorderColor = Color.White,
+                            cursorColor = Color.White
                         )
                     )
                 }
@@ -134,21 +133,21 @@ fun LoginScreen(
             if (loginState is LoginState.Error) {
                 Text(
                     text = (loginState as LoginState.Error).message,
-                    color = Color.Yellow, // Amarillo para que resalte sobre el azul
-                    modifier = Modifier.padding(top = 8.dp)
+                    color = crema,
+                    modifier = Modifier.padding(top = 8.dp),
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // --- BOTONES ---
             Button(
                 onClick = { viewModel.login(email, password) },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier.fillMaxWidth().height(52.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(14.dp)
             ) {
-                Text("Iniciar Sesión", color = azulInstitucional, fontWeight = FontWeight.Bold)
+                Text("Iniciar Sesión", color = naranjaPrincipal, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
 
             TextButton(onClick = onRegisterClick, modifier = Modifier.padding(top = 8.dp)) {

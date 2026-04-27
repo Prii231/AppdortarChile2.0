@@ -18,24 +18,21 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onTimeout: () -> Unit) {
-    val azulInstitucional = Color(0xFF003399)
-    val azulClaro = Color(0xFF0055CC)
-    val celesteLogo = Color(0xFF99CCFF)
-    val rojoChile = Color(0xFFEF5350)
+    val naranjaPrincipal = Color(0xFFE85D04)
+    val naranjaClaro     = Color(0xFFFB8500)
+    val verdeSalvia      = Color(0xFF4A7C59)
+    val crema            = Color(0xFFFFF5EB)
 
-    // Estado para controlar cuándo inicia la animación
     var startAnimation by remember { mutableStateOf(false) }
-
-    // Animación de escala: pasa de 0.8f a 1.2f suavemente
     val scale by animateFloatAsState(
         targetValue = if (startAnimation) 1.1f else 0.8f,
-        animationSpec = tween(durationMillis = 1000), // Dura 1 segundo
+        animationSpec = tween(durationMillis = 1000),
         label = "LogoScale"
     )
 
     LaunchedEffect(Unit) {
-        startAnimation = true // Inicia la animación al entrar
-        delay(2500) // Tiempo total de espera
+        startAnimation = true
+        delay(2500)
         onTimeout()
     }
 
@@ -44,7 +41,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(azulInstitucional, azulClaro)
+                    colors = listOf(naranjaPrincipal, naranjaClaro)
                 )
             ),
         contentAlignment = Alignment.Center
@@ -52,31 +49,14 @@ fun SplashScreen(onTimeout: () -> Unit) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.scale(scale) // Aplicamos la escala a toda la columna
+            modifier = Modifier.scale(scale)
         ) {
-            // Logo principal
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "App",
-                    fontSize = 42.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.White
-                )
-                Text(
-                    text = "Doptar",
-                    fontSize = 42.sp,
-                    fontWeight = FontWeight.Black,
-                    color = celesteLogo
-                )
+                Text("App",    fontSize = 42.sp, fontWeight = FontWeight.Black, color = Color.White)
+                Text("Doptar", fontSize = 42.sp, fontWeight = FontWeight.Black, color = crema)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Chile",
-                    fontSize = 42.sp,
-                    fontWeight = FontWeight.Black,
-                    color = rojoChile
-                )
+                Text("Chile",  fontSize = 42.sp, fontWeight = FontWeight.Black, color = verdeSalvia)
             }
-
             Text(
                 text = "Encuentra tu alma gemela <3",
                 color = Color.White.copy(alpha = 0.9f),
@@ -86,9 +66,8 @@ fun SplashScreen(onTimeout: () -> Unit) {
             )
         }
 
-        // El cargador se queda fijo abajo, fuera de la animación de escala
         CircularProgressIndicator(
-            color = Color.White.copy(alpha = 0.4f),
+            color = Color.White.copy(alpha = 0.5f),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 50.dp)
