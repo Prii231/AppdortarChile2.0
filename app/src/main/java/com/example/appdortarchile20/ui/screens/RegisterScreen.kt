@@ -2,14 +2,19 @@ package com.example.appdortarchile20.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.appdortarchile20.data.model.User
 import com.example.appdortarchile20.ui.viewmodel.PetViewModel
-import com.example.appdortarchile20.ui.viewmodel.LoginState // Asegúrate de importar esto
+import com.example.appdortarchile20.ui.viewmodel.LoginState
 import com.example.appdortarchile20.data.ChileData
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,31 +28,56 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
 
-    // --- NUEVO: Observar el estado del registro ---
     val loginState by viewModel.loginState.collectAsState()
 
-    // Este bloque detecta cuando el registro fue exitoso y gatilla la navegación
     LaunchedEffect(loginState) {
-        if (loginState is LoginState.Success) {
-            onRegistered() // Llama a la navegación hacia atrás o al Home
-        }
+        if (loginState is LoginState.Success) onRegistered()
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Text("Registro de Usuario", style = MaterialTheme.typography.headlineMedium)
+        Spacer(Modifier.height(8.dp))
 
-        OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nombre Completo") }, modifier = Modifier.fillMaxWidth())
+        Text(
+            "Crear cuenta",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            "Completa tus datos para empezar a adoptar.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
-        // --- Agregado: Campo de Teléfono ---
-        OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Teléfono (+569...)") }, modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(4.dp))
 
-        // --- Selector de Región ---
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Nombre completo") },
+            leadingIcon = {
+                Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp)
+        )
+
+        OutlinedTextField(
+            value = phone,
+            onValueChange = { phone = it },
+            label = { Text("Teléfono (+569...)") },
+            leadingIcon = {
+                Icon(Icons.Default.Phone, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp)
+        )
+
+        // Selector de región
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded },
@@ -57,39 +87,77 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
                 value = selectedRegion,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Selecciona tu Región") },
+                label = { Text("Selecciona tu región") },
+                leadingIcon = {
+                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp)
             )
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 ChileData.regionesChile.forEach { region ->
                     DropdownMenuItem(
                         text = { Text(region) },
-                        onClick = {
-                            selectedRegion = region
-                            expanded = false
-                        }
+                        onClick = { selectedRegion = region; expanded = false }
                     )
                 }
             }
         }
 
-        OutlinedTextField(value = age, onValueChange = { age = it }, label = { Text("Edad") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Correo") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Contraseña") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = age,
+            onValueChange = { age = it },
+            label = { Text("Edad") },
+            leadingIcon = {
+                Icon(Icons.Default.Cake, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp)
+        )
 
-        // Muestra un mensaje de error si el registro falla
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Correo electrónico") },
+            leadingIcon = {
+                Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp)
+        )
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Contraseña") },
+            leadingIcon = {
+                Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp)
+        )
+
         if (loginState is LoginState.Error) {
-            Text(
-                text = (loginState as LoginState.Error).message,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
-            )
+            Surface(
+                color = MaterialTheme.colorScheme.errorContainer,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = (loginState as LoginState.Error).message,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
         }
+
+        Spacer(Modifier.height(4.dp))
 
         Button(
             onClick = {
-                // Solo registramos si los campos básicos no están vacíos
                 if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
                     viewModel.register(
                         User(
@@ -104,11 +172,16 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
-            // El botón se habilita solo si hay nombre, región y correo
-            enabled = name.isNotEmpty() && selectedRegion.isNotEmpty() && email.isNotEmpty()
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            enabled = name.isNotEmpty() && selectedRegion.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty(),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            )
         ) {
-            Text("Finalizar Registro")
+            Text("Crear mi cuenta", fontWeight = FontWeight.Bold)
         }
+
+        Spacer(Modifier.height(8.dp))
     }
 }
