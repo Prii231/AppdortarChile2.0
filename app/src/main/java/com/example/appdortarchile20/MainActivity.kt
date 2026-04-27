@@ -6,9 +6,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.appdortarchile20.ui.screens.*
 import com.example.appdortarchile20.ui.theme.AppdortarChile20Theme
@@ -91,6 +94,19 @@ fun AppNavigation(viewModel: PetViewModel) {
 
         // 4. Contenedor Principal
         composable("main_content") {
+            val currentUser by viewModel.currentUser.collectAsState()
+            val navBackStack by navController.currentBackStackEntryAsState()
+
+            // Si el usuario pierde la sesión estando en main_content, vuelve al login
+            LaunchedEffect(currentUser) {
+                if (currentUser == null &&
+                    navBackStack?.destination?.route == "main_content") {
+                    navController.navigate("login") {
+                        popUpTo("main_content") { inclusive = true }
+                    }
+                }
+            }
+
             MainDrawerScreen(
                 viewModel = viewModel,
                 onLogout = {
