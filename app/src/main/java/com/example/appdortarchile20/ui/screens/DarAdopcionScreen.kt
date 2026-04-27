@@ -42,6 +42,9 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
         onResult = { uri -> imageUri = uri }
     )
 
+    // Usuario autenticado
+    val currentUser by viewModel.currentUser.collectAsState()
+
     var expandedRegion by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
@@ -163,8 +166,8 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
                     hasVaccines = hasVaccines,
                     isSterilized = isSterilized,
                     description = description,
-                    ownerName = "Usuario",
-                    ownerPhone = "+569XXXXXXXX"
+                    ownerName = currentUser?.name ?: "Anónimo",
+                    ownerPhone = currentUser?.phone ?: ""
                 )
                 viewModel.addPet(newPet)
                 onSaved()

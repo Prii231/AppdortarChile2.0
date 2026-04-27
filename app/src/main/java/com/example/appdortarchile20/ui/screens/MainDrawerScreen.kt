@@ -3,8 +3,7 @@ package com.example.appdortarchile20.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.*import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,6 +90,18 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
+                // NUEVO ITEM: DONACIONES
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Favorite, contentDescription = null, tint = Color(0xFFEF5350)) },
+                    label = { Text("Donaciones", fontWeight = FontWeight.SemiBold) },
+                    selected = currentScreen == "donaciones",
+                    onClick = {
+                        currentScreen = "donaciones"
+                        scope.launch { drawerState.close() }
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.AddCircle, contentDescription = null, tint = azulInstitucional) },
                     label = { Text("Dar en Adopción", fontWeight = FontWeight.SemiBold) },
@@ -150,6 +161,7 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
                                 "dar" -> "Publicar Mascota"
                                 "blog" -> "Consejos y Blog"
                                 "nosotros" -> "Nuestra Misión"
+                                "donaciones" -> "Campañas de Donación"
                                 else -> "Contacto"
                             },
                             fontWeight = FontWeight.Bold
@@ -171,10 +183,11 @@ fun MainDrawerScreen(viewModel: PetViewModel) {
             Box(modifier = Modifier.padding(paddingValues)) {
                 when (currentScreen) {
                     "adoptar" -> AdoptarScreen(viewModel)
-                    "urgencias" -> UrgenciasScreen() // Llamada a tu nueva pantalla de mapa
+                    "urgencias" -> UrgenciasScreen(viewModel = viewModel)
                     "dar" -> DarAdopcionScreen(viewModel, onSaved = { currentScreen = "adoptar" })
                     "blog" -> BlogScreen()
                     "nosotros" -> NosotrosScreen()
+                    "donaciones" -> DonacionesScreen()
                     "contacto" -> ContactoScreen()
                 }
             }
