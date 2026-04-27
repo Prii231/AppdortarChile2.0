@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,17 +34,19 @@ fun AdoptarScreen(viewModel: PetViewModel) {
     var busqueda by remember { mutableStateOf("") }
     var filterType by remember { mutableStateOf("Todos") }
     var filterRegion by remember { mutableStateOf("Todas las Regiones") }
+    var soloMias by remember { mutableStateOf(false) }
     var expandedRegion by remember { mutableStateOf(false) }
     var selectedPet by remember { mutableStateOf<Pet?>(null) }
     var petAEliminar by remember { mutableStateOf<Pet?>(null) }
 
-    // Lista filtrada combinando búsqueda + tipo + región
+    // Lista filtrada combinando búsqueda + tipo + región + mis mascotas
     val filteredList = pets.filter { pet ->
         val matchesSearch = busqueda.isEmpty() ||
                 pet.name.contains(busqueda, ignoreCase = true)
         val matchesType = filterType == "Todos" || pet.type == filterType
         val matchesRegion = filterRegion == "Todas las Regiones" || pet.region == filterRegion
-        matchesSearch && matchesType && matchesRegion
+        val matchesMias = !soloMias || pet.ownerEmail == currentUser?.email
+        matchesSearch && matchesType && matchesRegion && matchesMias
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -104,7 +107,7 @@ fun AdoptarScreen(viewModel: PetViewModel) {
             }
         }
 
-        // 3. Chips de tipo
+        // 3. Chips de tipo + Mis mascotas
         Row(
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -119,6 +122,33 @@ fun AdoptarScreen(viewModel: PetViewModel) {
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                         selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                )
+            }
+            // Chip Mis mascotas — solo visible si hay usuario logueado
+            if (currentUser != null) {
+                FilterChip(
+                    selected = soloMias,
+                    onClick = { soloMias = !soloMias },
+                    label = {
+                        Text(
+                            "Mis mascotas",
+                            fontWeight = if (soloMias) FontWeight.SemiBold else FontWeight.Normal
+                        )
+                    },
+                    leadingIcon = if (soloMias) {
+                        {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    } else null,
+                    modifier = Modifier.padding(end = 8.dp),
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 )
             }
@@ -157,11 +187,12 @@ fun AdoptarScreen(viewModel: PetViewModel) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
-                    if (busqueda.isNotEmpty() || filterType != "Todos" || filterRegion != "Todas las Regiones") {
+                    if (busqueda.isNotEmpty() || filterType != "Todos" || filterRegion != "Todas las Regiones" || soloMias) {
                         TextButton(onClick = {
                             busqueda = ""
                             filterType = "Todos"
                             filterRegion = "Todas las Regiones"
+                            soloMias = false
                         }) {
                             Text("Limpiar filtros", color = MaterialTheme.colorScheme.primary)
                         }
