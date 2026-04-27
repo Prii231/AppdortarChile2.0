@@ -42,6 +42,16 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
         onResult = { uri -> imageUri = uri }
     )
 
+    var intentado by remember { mutableStateOf(false) }
+
+    val errorNombre = if (intentado && name.isEmpty()) "El nombre es obligatorio" else null
+    val errorRegion = if (intentado && selectedRegion.isEmpty()) "Selecciona una región" else null
+    val errorFoto = if (intentado && imageUri == null) "La foto es obligatoria" else null
+    val errorDescripcion = if (intentado && description.isEmpty()) "Agrega una descripción" else null
+
+    val formularioValido = name.isNotEmpty() && selectedRegion.isNotEmpty() &&
+            imageUri != null && description.isNotEmpty()
+
     val currentUser by viewModel.currentUser.collectAsState()
     var expandedRegion by remember { mutableStateOf(false) }
 
@@ -109,6 +119,8 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
             leadingIcon = {
                 Icon(Icons.Default.Pets, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             },
+            isError = errorNombre != null,
+            supportingText = { if (errorNombre != null) Text(errorNombre, color = MaterialTheme.colorScheme.error) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp)
         )
@@ -165,6 +177,8 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
                 readOnly = true,
                 label = { Text("Región") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedRegion) },
+                isError = errorRegion != null,
+                supportingText = { if (errorRegion != null) Text(errorRegion, color = MaterialTheme.colorScheme.error) },
                 modifier = Modifier.menuAnchor().fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp)
             )
@@ -226,36 +240,44 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
             label = { Text("Descripción") },
             modifier = Modifier.fillMaxWidth().height(120.dp),
             shape = RoundedCornerShape(14.dp),
+            isError = errorDescripcion != null,
+            supportingText = { if (errorDescripcion != null) Text(errorDescripcion, color = MaterialTheme.colorScheme.error) },
             maxLines = 5
         )
+
+        // Mensaje error foto
+        if (errorFoto != null) {
+            Text(errorFoto, color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall)
+        }
 
         // --- BOTÓN ---
         Button(
             onClick = {
-                val newPet = Pet(
-                    id = 0,
-                    name = name,
-                    type = type,
-                    age = age,
-                    region = selectedRegion,
-                    city = city,
-                    imageUrl = imageUri?.toString() ?: "https://placedog.net/500",
-                    hasVaccines = hasVaccines,
-                    isSterilized = isSterilized,
-                    description = description,
-                    ownerName = currentUser?.name ?: "Anónimo",
-                    ownerPhone = currentUser?.phone ?: "",
-                    ownerEmail = currentUser?.email ?: ""
-                )
-                viewModel.addPet(newPet)
-                onSaved()
+                intentado = true
+                if (formularioValido) {
+                    val newPet = Pet(
+                        id = 0,
+                        name = name,
+                        type = type,
+                        age = age,
+                        region = selectedRegion,
+                        city = city,
+                        imageUrl = imageUri?.toString() ?: "https://placedog.net/500",
+                        hasVaccines = hasVaccines,
+                        isSterilized = isSterilized,
+                        description = description,
+                        ownerName = currentUser?.name ?: "Anónimo",
+                        ownerPhone = currentUser?.phone ?: "",
+                        ownerEmail = currentUser?.email ?: ""
+                    )
+                    viewModel.addPet(newPet)
+                    onSaved()
+                }
             },
             modifier = Modifier.fillMaxWidth().height(52.dp),
-            enabled = name.isNotEmpty() && selectedRegion.isNotEmpty() && imageUri != null,
             shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            )
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Text("Publicar Mascota", fontWeight = FontWeight.Bold)
         }
