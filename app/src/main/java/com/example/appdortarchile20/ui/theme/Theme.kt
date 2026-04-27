@@ -1,53 +1,92 @@
 package com.example.appdortarchile20.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// --- ESQUEMA CLARO ---
+private val LightColorScheme = lightColorScheme(
+    primary          = Naranja600,        // Botones, FAB, elementos activos
+    onPrimary        = Color.White,
+    primaryContainer = Naranja100,        // Chips, badges, fondos suaves
+    onPrimaryContainer = Naranja800,
+
+    secondary        = Verde600,          // Elementos secundarios
+    onSecondary      = Color.White,
+    secondaryContainer = Verde100,
+    onSecondaryContainer = Verde700,
+
+    tertiary         = Naranja500,        // Acentos y highlights
+    onTertiary       = Color.White,
+    tertiaryContainer = Naranja50,
+    onTertiaryContainer = Naranja700,
+
+    background       = CremaBg,           // Fondo general cálido
+    onBackground     = OscuroCaldo,
+    surface          = CremaCard,         // Tarjetas y superficies
+    onSurface        = OscuroCaldo,
+    surfaceVariant   = Naranja50,
+    onSurfaceVariant = GrisCaldo,
+
+    error            = RojoUrgencia,
+    onError          = Color.White,
+
+    outline          = Color(0xFFD4C0A8), // Bordes cálidos
+    outlineVariant   = Color(0xFFEDE0CC),
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+// --- ESQUEMA OSCURO ---
+private val DarkColorScheme = darkColorScheme(
+    primary          = NaranjaClaro,
+    onPrimary        = Color(0xFF4A2000),
+    primaryContainer = Naranja800,
+    onPrimaryContainer = Naranja100,
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary        = VerdeClaro,
+    onSecondary      = Color(0xFF0D2B1A),
+    secondaryContainer = Verde800,
+    onSecondaryContainer = Verde100,
+
+    tertiary         = Naranja500,
+    onTertiary       = Color(0xFF3D1E00),
+
+    background       = FondoOscuro,
+    onBackground     = Color(0xFFF5E6D3),
+    surface          = SuperfOscura,
+    onSurface        = Color(0xFFF5E6D3),
+    surfaceVariant   = Color(0xFF3D2910),
+    onSurfaceVariant = Color(0xFFD4B896),
+
+    error            = Color(0xFFFF8A80),
+    onError          = Color(0xFF690000),
+
+    outline          = Color(0xFF6B5040),
+    outlineVariant   = Color(0xFF3D2910),
 )
 
 @Composable
 fun AppdortarChile20Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    // Colorear la barra de estado con el naranja principal
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+        }
     }
 
     MaterialTheme(
