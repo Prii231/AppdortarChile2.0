@@ -39,13 +39,16 @@ interface AppDao {
     @Delete
     suspend fun deleteReporte(reporte: UrgenciaReporte)
 
+    @Query("UPDATE urgencias SET resuelta = 1 WHERE id = :id")
+    suspend fun marcarResuelta(id: Int)
+
     @Query("SELECT * FROM urgencias ORDER BY horaReporte DESC")
     fun getAllReportes(): Flow<List<UrgenciaReporte>>
 }
 
 @Database(
     entities = [User::class, Pet::class, UrgenciaReporte::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

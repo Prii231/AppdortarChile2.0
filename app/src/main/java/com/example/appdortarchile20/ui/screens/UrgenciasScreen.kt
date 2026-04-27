@@ -4,12 +4,18 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocation
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.appdortarchile20.data.model.TipoUrgencia
 import com.example.appdortarchile20.data.model.UrgenciaReporte
@@ -18,15 +24,29 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import java.text.SimpleDateFormat
+import java.util.*
 
-// Función auxiliar para crear un bitmap circular de color para el marcador
 fun createColoredMarkerBitmap(colorHex: Long): Bitmap {
     val size = 60
     val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = colorHex.toInt()
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = colorHex.toInt() }
+    val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = android.graphics.Color.WHITE
+        style = Paint.Style.STROKE
+        strokeWidth = 5f
     }
+    canvas.drawCircle(size / 2f, size / 2f, size / 2f - 4f, paint)
+    canvas.drawCircle(size / 2f, size / 2f, size / 2f - 4f, strokePaint)
+    return bitmap
+}
+
+fun createResueltaBitmap(): Bitmap {
+    val size = 60
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = android.graphics.Color.parseColor("#9E9E9E") }
     val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = android.graphics.Color.WHITE
         style = Paint.Style.STROKE
@@ -41,9 +61,10 @@ fun createColoredMarkerBitmap(colorHex: Long): Bitmap {
 fun UrgenciasScreen(viewModel: PetViewModel) {
     val reportes by viewModel.allReportes.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
+    var reporteSeleccionado by remember { mutableStateOf<UrgenciaReporte?>(null) }
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
 
-    // Efecto que se dispara cada vez que cambia la lista de reportes
+    // Actualizar marcadores cuando cambian los reportes
     LaunchedEffect(reportes) {
         val mapView = mapViewRef ?: return@LaunchedEffect
         mapView.overlays.clear()
@@ -56,22 +77,98 @@ fun UrgenciasScreen(viewModel: PetViewModel) {
                 title = reporte.titulo
                 snippet = reporte.descripcion
 
-                // Aplicar bitmap de color según el tipo de urgencia
-                val bmp = createColoredMarkerBitmap(tipo.colorHex)
-                icon = android.graphics.drawable.BitmapDrawable(
-                    mapView.context.resources,
-                    bmp
-                )
+                val bmp = if (reporte.resuelta) createResueltaBitmap()
+                else createColoredMarkerBitmap(tipo.colorHex)
+
+                icon = android.graphics.drawable.BitmapDrawable(mapView.context.resources, bmp)
+
+                // Al tocar el pin abre el dialog de detalle
+                setOnMarkerClickListener { _, _ ->
+                    reporteSeleccionado = reporte
+                    true
+                }
             }
             mapView.overlays.add(marker)
         }
         mapView.invalidate()
     }
 
+    // Dialog de crear alerta
     if (showDialog) {
         CrearAlertaDialog(
             onDismiss = { showDialog = false },
             onConfirm = { reporte -> viewModel.addReporte(reporte) }
+        )
+    }
+
+    // Dialog de detalle del reporte al tocar un pin
+    if (reporteSeleccionado != null) {
+        val reporte = reporteSeleccionado!!
+        val tipo = TipoUrgencia.entries.find { it.name == reporte.tipo } ?: TipoUrgencia.EXTRAVIADO
+        val fecha = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            .format(Date(reporte.horaReporte))
+
+        AlertDialog(
+            onDismissRequest = { reporteSeleccionado = null },
+            shape = RoundedCornerShape(20.dp),
+            icon = {
+                Icon(
+                    if (reporte.resuelta) Icons.Default.CheckCircle else Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = if (reporte.resuelta) MaterialTheme.colorScheme.secondary
+                    else Color(tipo.colorHex.toInt())
+                )
+            },
+            title = { Text(reporte.titulo, fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Surface(
+                        color = if (reporte.resuelta) MaterialTheme.colorScheme.secondaryContainer
+                        else MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            if (reporte.resuelta) "✓ Resuelta" else tipo.descripcion,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (reporte.resuelta) MaterialTheme.colorScheme.onSecondaryContainer
+                            else MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
+                    }
+                    if (reporte.descripcion.isNotEmpty()) {
+                        Text(reporte.descripcion, style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Text("Reportado el $fecha",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            },
+            confirmButton = {
+                if (!reporte.resuelta) {
+                    Button(
+                        onClick = {
+                            viewModel.marcarResuelta(reporte.id)
+                            reporteSeleccionado = null
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null,
+                            modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Marcar como resuelta")
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { reporteSeleccionado = null }) {
+                    Text("Cerrar")
+                }
+            }
         )
     }
 
@@ -93,12 +190,10 @@ fun UrgenciasScreen(viewModel: PetViewModel) {
                         setTileSource(TileSourceFactory.MAPNIK)
                         setMultiTouchControls(true)
                         controller.setZoom(12.0)
-                        controller.setCenter(GeoPoint(-33.4489, -70.6693)) // Santiago
+                        controller.setCenter(GeoPoint(-33.4489, -70.6693))
                     }.also { mapViewRef = it }
                 },
-                update = { mapView ->
-                    mapViewRef = mapView
-                },
+                update = { mapView -> mapViewRef = mapView },
                 modifier = Modifier.fillMaxSize()
             )
         }

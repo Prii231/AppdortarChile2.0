@@ -95,6 +95,12 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun marcarResuelta(id: Int) {
+        viewModelScope.launch {
+            dao.marcarResuelta(id)
+        }
+    }
+
     // Datos iniciales de ejemplo con REGIONES de Chile
     fun insertDummyData() {
         viewModelScope.launch {

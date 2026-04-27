@@ -9,16 +9,17 @@ data class UrgenciaReporte(
     val id: Int = 0,
     val titulo: String = "",
     val descripcion: String = "",
-    val tipo: String = TipoUrgencia.EXTRAVIADO.name, // Guardamos el nombre del enum como String
+    val tipo: String = TipoUrgencia.EXTRAVIADO.name,
     val latitud: Double = 0.0,
     val longitud: Double = 0.0,
     val horaReporte: Long = System.currentTimeMillis(),
-    val imagenUrl: String? = null
+    val imagenUrl: String? = null,
+    val resuelta: Boolean = false
 )
 
 enum class TipoUrgencia(val descripcion: String, val colorHex: Long) {
-    EXTRAVIADO("Mascota Perdida", 0xFFFFD700),   // Amarillo/Dorado
-    HERIDO("Mascota Herida", 0xFFEF5350),         // Rojo
-    HAMBRE("Necesita Alimento", 0xFF4CAF50),      // Verde
-    MALTRATO("Denuncia Maltrato", 0xFF9C27B0)     // Morado
+    EXTRAVIADO("Mascota Perdida", 0xFFFFD700),
+    HERIDO("Mascota Herida", 0xFFEF5350),
+    HAMBRE("Necesita Alimento", 0xFF4CAF50),
+    MALTRATO("Denuncia Maltrato", 0xFF9C27B0)
 }
