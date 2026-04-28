@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.AppdortarChile20" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowSplashScreenBackground">@color/naranja_principal</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@color/naranja_principal</item>
-    </style>
-
-    <style name="Theme.AppdortarChile20.SplashTheme" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/naranja_principal</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
-        <item name="windowSplashScreenIconBackgroundColor">@color/naranja_principal</item>
-        <item name="postSplashScreenTheme">@style/Theme.AppdortarChile20</item>
+        <item name="android:windowBackground">@color/naranja_principal</item>
+        <item name="android:statusBarColor">@color/naranja_principal</item>
     </style>
 </resources>
