@@ -14,6 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.example.appdortarchile20.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -48,18 +51,19 @@ fun SplashScreen(onTimeout: () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.scale(scale)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("App",    fontSize = 42.sp, fontWeight = FontWeight.Black, color = Color.White)
-                    Text("Doptar", fontSize = 42.sp, fontWeight = FontWeight.Black, color = crema)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Chile",  fontSize = 42.sp, fontWeight = FontWeight.Black, color = verdeSalvia)
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "AppDoptar Chile",
+                    modifier = Modifier
+                        .width(280.dp)
+                        .height(272.dp)
+                )
                 Text(
                     text = "Encuentra tu alma gemela <3",
                     color = Color.White.copy(alpha = 0.9f),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(top = 12.dp)
+                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
             CircularProgressIndicator(

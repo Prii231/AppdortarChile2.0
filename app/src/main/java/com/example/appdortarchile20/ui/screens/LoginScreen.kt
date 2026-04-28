@@ -11,12 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.appdortarchile20.ui.viewmodel.PetViewModel
+import androidx.compose.foundation.Image
+import com.example.appdortarchile20.R
 import com.example.appdortarchile20.ui.viewmodel.LoginState
+import com.example.appdortarchile20.ui.viewmodel.PetViewModel
 
 @Composable
 fun LoginScreen(
@@ -30,7 +33,6 @@ fun LoginScreen(
 
     val naranjaPrincipal = Color(0xFFE85D04)
     val naranjaClaro     = Color(0xFFFB8500)
-    val verdeSalvia      = Color(0xFF4A7C59)
     val crema            = Color(0xFFFFF5EB)
 
     val infiniteTransition = rememberInfiniteTransition(label = "HeartBeat")
@@ -57,17 +59,35 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
+                // Logo
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "AppDoptar Chile",
+                    modifier = Modifier
+                        .width(260.dp)
+                        .height(210.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Eslogan con corazón animado
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("App",    fontSize = 38.sp, fontWeight = FontWeight.Black, color = Color.White)
-                    Text("Doptar", fontSize = 38.sp, fontWeight = FontWeight.Black, color = crema)
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Chile",  fontSize = 38.sp, fontWeight = FontWeight.Black, color = verdeSalvia)
+                    Text(
+                        text = "Encuentra tu alma gemela ",
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = "<3",
+                        color = crema,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.scale(heartScale)
+                    )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Encuentra tu alma gemela ", color = Color.White.copy(alpha = 0.9f), fontSize = 16.sp)
-                    Text(text = "<3", color = crema, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.scale(heartScale))
-                }
-                Spacer(modifier = Modifier.height(40.dp))
+
+                Spacer(modifier = Modifier.height(32.dp))
+
                 Card(
                     shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.15f)),
@@ -98,11 +118,18 @@ fun LoginScreen(
                         )
                     }
                 }
+
                 if (loginState is LoginState.Error) {
-                    Text(text = (loginState as LoginState.Error).message, color = crema,
-                        modifier = Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = (loginState as LoginState.Error).message,
+                        color = crema,
+                        modifier = Modifier.padding(top = 8.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
+
                 Spacer(modifier = Modifier.height(32.dp))
+
                 Button(
                     onClick = { viewModel.login(email, password) },
                     modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -111,6 +138,7 @@ fun LoginScreen(
                 ) {
                     Text("Iniciar Sesión", color = naranjaPrincipal, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
+
                 TextButton(onClick = onRegisterClick, modifier = Modifier.padding(top = 8.dp)) {
                     Text("¿No tienes cuenta? Regístrate aquí", color = Color.White)
                 }
