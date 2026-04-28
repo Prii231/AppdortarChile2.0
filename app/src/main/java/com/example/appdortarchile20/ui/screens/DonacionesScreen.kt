@@ -51,30 +51,32 @@ fun DonacionesScreen() {
         )
     }
 
-    LazyColumn(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Column(modifier = Modifier.padding(bottom = 8.dp)) {
-                Text("Campañas de Donación", style = MaterialTheme.typography.headlineMedium)
-                Text(
-                    "Ayuda a financiar el cuidado de animales en situación vulnerable.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp)
+    FondoHuellas {
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                    Text("Campañas de Donación", style = MaterialTheme.typography.headlineMedium)
+                    Text(
+                        "Ayuda a financiar el cuidado de animales en situación vulnerable.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+
+            items(campaniasMVP) { campania ->
+                val recaudado = montosRecaudados[campania.id] ?: campania.montoRecaudado
+                CampaniaCard(
+                    campania = campania.copy(montoRecaudado = recaudado),
+                    onDonar = { campaniaSeleccionada = campania }
                 )
             }
         }
-
-        items(campaniasMVP) { campania ->
-            val recaudado = montosRecaudados[campania.id] ?: campania.montoRecaudado
-            CampaniaCard(
-                campania = campania.copy(montoRecaudado = recaudado),
-                onDonar = { campaniaSeleccionada = campania }
-            )
-        }
-    }
+    } // FondoHuellas
 }
 
 @Composable

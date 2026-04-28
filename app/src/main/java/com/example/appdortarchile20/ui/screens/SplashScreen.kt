@@ -36,42 +36,36 @@ fun SplashScreen(onTimeout: () -> Unit) {
         onTimeout()
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(naranjaPrincipal, naranjaClaro)
-                )
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.scale(scale)
+    FondoHuellas(alpha = 0.18f) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(brush = Brush.verticalGradient(colors = listOf(naranjaPrincipal, naranjaClaro))),
+            contentAlignment = Alignment.Center
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("App",    fontSize = 42.sp, fontWeight = FontWeight.Black, color = Color.White)
-                Text("Doptar", fontSize = 42.sp, fontWeight = FontWeight.Black, color = crema)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Chile",  fontSize = 42.sp, fontWeight = FontWeight.Black, color = verdeSalvia)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.scale(scale)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("App",    fontSize = 42.sp, fontWeight = FontWeight.Black, color = Color.White)
+                    Text("Doptar", fontSize = 42.sp, fontWeight = FontWeight.Black, color = crema)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Chile",  fontSize = 42.sp, fontWeight = FontWeight.Black, color = verdeSalvia)
+                }
+                Text(
+                    text = "Encuentra tu alma gemela <3",
+                    color = Color.White.copy(alpha = 0.9f),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
             }
-            Text(
-                text = "Encuentra tu alma gemela <3",
-                color = Color.White.copy(alpha = 0.9f),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(top = 12.dp)
+            CircularProgressIndicator(
+                color = Color.White.copy(alpha = 0.5f),
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 50.dp).size(30.dp)
             )
         }
-
-        CircularProgressIndicator(
-            color = Color.White.copy(alpha = 0.5f),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 50.dp)
-                .size(30.dp)
-        )
     }
 }

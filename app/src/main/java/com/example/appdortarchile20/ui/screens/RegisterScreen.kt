@@ -85,169 +85,171 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
             validarPassword(password) == null &&
             selectedRegion.isNotEmpty()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Spacer(Modifier.height(8.dp))
-        Text("Crear cuenta", style = MaterialTheme.typography.headlineMedium)
-        Text(
-            "Completa tus datos para empezar a adoptar.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(4.dp))
-
-        // Nombre
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it.filter { c -> c.isLetter() || c.isWhitespace() } },
-            label = { Text("Nombre completo") },
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            isError = errorNombre != null,
-            supportingText = { if (errorNombre != null) Text(errorNombre, color = MaterialTheme.colorScheme.error) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            singleLine = true
-        )
-
-        // Teléfono con prefijo +569 fijo e imborrable
-        OutlinedTextField(
-            value = phone,
-            onValueChange = { input ->
-                // Solo guardar dígitos, máximo 8
-                val soloDigitos = input.filter { it.isDigit() }.take(8)
-                phone = soloDigitos
-            },
-            label = { Text("Teléfono celular") },
-            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            prefix = { Text("+569 ", color = MaterialTheme.colorScheme.onSurface) },
-            isError = errorTelefono != null,
-            supportingText = {
-                if (errorTelefono != null) Text(errorTelefono, color = MaterialTheme.colorScheme.error)
-                else Text("${phone.length}/8 dígitos", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            singleLine = true
-        )
-
-        // Región
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-            modifier = Modifier.fillMaxWidth()
+    FondoHuellas {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedTextField(
-                value = selectedRegion,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Selecciona tu región") },
-                leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                isError = errorRegion != null,
-                supportingText = { if (errorRegion != null) Text(errorRegion, color = MaterialTheme.colorScheme.error) },
-                modifier = Modifier.menuAnchor().fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp)
+            Spacer(Modifier.height(8.dp))
+            Text("Crear cuenta", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                "Completa tus datos para empezar a adoptar.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                ChileData.regionesChile.forEach { region ->
-                    DropdownMenuItem(
-                        text = { Text(region) },
-                        onClick = { selectedRegion = region; expanded = false }
-                    )
-                }
-            }
-        }
+            Spacer(Modifier.height(4.dp))
 
-        // Edad
-        OutlinedTextField(
-            value = age,
-            onValueChange = { age = it.filter { c -> c.isDigit() }.take(3) },
-            label = { Text("Edad") },
-            leadingIcon = { Icon(Icons.Default.Cake, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            isError = errorEdad != null,
-            supportingText = { if (errorEdad != null) Text(errorEdad, color = MaterialTheme.colorScheme.error) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            singleLine = true
-        )
+            // Nombre
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it.filter { c -> c.isLetter() || c.isWhitespace() } },
+                label = { Text("Nombre completo") },
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                isError = errorNombre != null,
+                supportingText = { if (errorNombre != null) Text(errorNombre, color = MaterialTheme.colorScheme.error) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true
+            )
 
-        // Email
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it.trim() },
-            label = { Text("Correo electrónico") },
-            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            isError = errorEmail != null,
-            supportingText = { if (errorEmail != null) Text(errorEmail, color = MaterialTheme.colorScheme.error) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            singleLine = true
-        )
+            // Teléfono con prefijo +569 fijo e imborrable
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { input ->
+                    // Solo guardar dígitos, máximo 8
+                    val soloDigitos = input.filter { it.isDigit() }.take(8)
+                    phone = soloDigitos
+                },
+                label = { Text("Teléfono celular") },
+                leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                prefix = { Text("+569 ", color = MaterialTheme.colorScheme.onSurface) },
+                isError = errorTelefono != null,
+                supportingText = {
+                    if (errorTelefono != null) Text(errorTelefono, color = MaterialTheme.colorScheme.error)
+                    else Text("${phone.length}/8 dígitos", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true
+            )
 
-        // Contraseña
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Contraseña") },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            visualTransformation = PasswordVisualTransformation(),
-            isError = errorPassword != null,
-            supportingText = {
-                if (errorPassword != null) Text(errorPassword, color = MaterialTheme.colorScheme.error)
-                else Text("Mínimo 6 caracteres", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            singleLine = true
-        )
-
-        // Error de Room (email duplicado etc)
-        if (loginState is LoginState.Error) {
-            Surface(
-                color = MaterialTheme.colorScheme.errorContainer,
-                shape = RoundedCornerShape(12.dp),
+            // Región
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    (loginState as LoginState.Error).message,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(12.dp)
+                OutlinedTextField(
+                    value = selectedRegion,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Selecciona tu región") },
+                    leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    isError = errorRegion != null,
+                    supportingText = { if (errorRegion != null) Text(errorRegion, color = MaterialTheme.colorScheme.error) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
                 )
-            }
-        }
-
-        Spacer(Modifier.height(4.dp))
-
-        Button(
-            onClick = {
-                intentado = true
-                if (formularioValido) {
-                    viewModel.register(
-                        User(
-                            id = 0,
-                            name = name.trim(),
-                            phone = "+569${phone.trim()}",
-                            region = selectedRegion,
-                            age = age.toIntOrNull() ?: 0,
-                            email = email.trim(),
-                            password = password
+                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    ChileData.regionesChile.forEach { region ->
+                        DropdownMenuItem(
+                            text = { Text(region) },
+                            onClick = { selectedRegion = region; expanded = false }
                         )
+                    }
+                }
+            }
+
+            // Edad
+            OutlinedTextField(
+                value = age,
+                onValueChange = { age = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Edad") },
+                leadingIcon = { Icon(Icons.Default.Cake, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                isError = errorEdad != null,
+                supportingText = { if (errorEdad != null) Text(errorEdad, color = MaterialTheme.colorScheme.error) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true
+            )
+
+            // Email
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it.trim() },
+                label = { Text("Correo electrónico") },
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                isError = errorEmail != null,
+                supportingText = { if (errorEmail != null) Text(errorEmail, color = MaterialTheme.colorScheme.error) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true
+            )
+
+            // Contraseña
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Contraseña") },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                visualTransformation = PasswordVisualTransformation(),
+                isError = errorPassword != null,
+                supportingText = {
+                    if (errorPassword != null) Text(errorPassword, color = MaterialTheme.colorScheme.error)
+                    else Text("Mínimo 6 caracteres", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true
+            )
+
+            // Error de Room (email duplicado etc)
+            if (loginState is LoginState.Error) {
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        (loginState as LoginState.Error).message,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(12.dp)
                     )
                 }
-            },
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-        ) {
-            Text("Crear mi cuenta", fontWeight = FontWeight.Bold)
-        }
+            }
 
-        Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
+
+            Button(
+                onClick = {
+                    intentado = true
+                    if (formularioValido) {
+                        viewModel.register(
+                            User(
+                                id = 0,
+                                name = name.trim(),
+                                phone = "+569${phone.trim()}",
+                                region = selectedRegion,
+                                age = age.toIntOrNull() ?: 0,
+                                email = email.trim(),
+                                password = password
+                            )
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Crear mi cuenta", fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(Modifier.height(8.dp))
+        }
     }
 }
