@@ -174,12 +174,63 @@ fun UrgenciasScreen(viewModel: PetViewModel) {
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showDialog = true },
-                containerColor = Color(0xFFEF5350),
-                contentColor = Color.White
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Default.AddLocation, contentDescription = "Reportar urgencia")
+                // Leyenda de colores
+                Surface(
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.93f),
+                    shape = RoundedCornerShape(12.dp),
+                    tonalElevation = 4.dp
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        TipoUrgencia.entries.forEach { tipo ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Surface(
+                                    color = androidx.compose.ui.graphics.Color(tipo.colorHex.toInt()),
+                                    shape = RoundedCornerShape(50.dp),
+                                    modifier = Modifier.size(12.dp)
+                                ) {}
+                                Text(
+                                    tipo.descripcion,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                        // Resuelta
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Surface(
+                                color = androidx.compose.ui.graphics.Color(0xFF9E9E9E.toInt()),
+                                shape = RoundedCornerShape(50.dp),
+                                modifier = Modifier.size(12.dp)
+                            ) {}
+                            Text(
+                                "Resuelta",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+
+                FloatingActionButton(
+                    onClick = { showDialog = true },
+                    containerColor = Color(0xFFEF5350),
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.AddLocation, contentDescription = "Reportar urgencia")
+                }
             }
         }
     ) { paddingValues ->
