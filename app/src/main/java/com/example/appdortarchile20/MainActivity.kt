@@ -14,10 +14,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavGraphBuilder
 import com.example.appdortarchile20.ui.screens.*
 import com.example.appdortarchile20.ui.theme.AppdortarChile20Theme
 import com.example.appdortarchile20.ui.viewmodel.PetViewModel
 import org.osmdroid.config.Configuration
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +57,23 @@ fun AppNavigation(viewModel: PetViewModel) {
 
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "login",
+        enterTransition = {
+            fadeIn(animationSpec = tween(500)) +
+                    slideInHorizontally(animationSpec = tween(500)) { it / 4 }
+        },
+        exitTransition = {
+            fadeOut(animationSpec = tween(500)) +
+                    slideOutHorizontally(animationSpec = tween(500)) { -it / 4 }
+        },
+        popEnterTransition = {
+            fadeIn(animationSpec = tween(500)) +
+                    slideInHorizontally(animationSpec = tween(500)) { -it / 4 }
+        },
+        popExitTransition = {
+            fadeOut(animationSpec = tween(500)) +
+                    slideOutHorizontally(animationSpec = tween(500)) { it / 4 }
+        }
     ) {
         // 1. Pantalla de Login
         composable("login") {

@@ -1,5 +1,7 @@
 package com.example.appdortarchile20.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -255,15 +257,25 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
             }
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
-                when (currentScreen) {
-                    "adoptar"    -> AdoptarScreen(viewModel)
-                    "urgencias"  -> UrgenciasScreen(viewModel = viewModel)
-                    "dar"        -> DarAdopcionScreen(viewModel, onSaved = { currentScreen = "adoptar" })
-                    "blog"       -> BlogScreen()
-                    "nosotros"   -> NosotrosScreen()
-                    "donaciones" -> DonacionesScreen()
-                    "perfil"     -> PerfilScreen(viewModel)
-                    "contacto"   -> ContactoScreen()
+                AnimatedContent(
+                    targetState = currentScreen,
+                    transitionSpec = {
+                        fadeIn(animationSpec = tween(300)) +
+                                slideInVertically(animationSpec = tween(300)) { it / 8 } togetherWith
+                                fadeOut(animationSpec = tween(200))
+                    },
+                    label = "ScreenTransition"
+                ) { screen ->
+                    when (screen) {
+                        "adoptar"    -> AdoptarScreen(viewModel)
+                        "urgencias"  -> UrgenciasScreen(viewModel = viewModel)
+                        "dar"        -> DarAdopcionScreen(viewModel, onSaved = { currentScreen = "adoptar" })
+                        "blog"       -> BlogScreen()
+                        "nosotros"   -> NosotrosScreen()
+                        "donaciones" -> DonacionesScreen()
+                        "perfil"     -> PerfilScreen(viewModel)
+                        else         -> ContactoScreen()
+                    }
                 }
             }
         }
