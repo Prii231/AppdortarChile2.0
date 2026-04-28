@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import com.example.appdortarchile20.R
@@ -58,12 +59,41 @@ fun SplashScreen(onTimeout: () -> Unit) {
                         .width(280.dp)
                         .height(272.dp)
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Nombre tricolor
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "App",
+                        fontSize = 34.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Doptar",
+                        fontSize = 34.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFFFFF5EB)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Chile",
+                        fontSize = 34.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF4A7C59)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Encuentra tu alma gemela <3",
-                    color = Color.White.copy(alpha = 0.9f),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(top = 8.dp)
+                    text = "\"Cada mascota merece una segunda oportunidad\"",
+                    color = Color.White.copy(alpha = 0.92f),
+                    fontSize = 15.sp,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    lineHeight = 22.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
             }
             CircularProgressIndicator(

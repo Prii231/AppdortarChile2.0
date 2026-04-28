@@ -11,12 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import com.example.appdortarchile20.R
 import com.example.appdortarchile20.ui.viewmodel.LoginState
 import com.example.appdortarchile20.ui.viewmodel.PetViewModel
@@ -34,15 +35,6 @@ fun LoginScreen(
     val naranjaPrincipal = Color(0xFFE85D04)
     val naranjaClaro     = Color(0xFFFB8500)
     val crema            = Color(0xFFFFF5EB)
-
-    val infiniteTransition = rememberInfiniteTransition(label = "HeartBeat")
-    val heartScale by infiniteTransition.animateFloat(
-        initialValue = 1f, targetValue = 1.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(600, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "HeartScale"
-    )
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) onLoginSuccess()
@@ -68,23 +60,44 @@ fun LoginScreen(
                         .height(210.dp)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                // Eslogan con corazón animado
+                // Nombre de la app tricolor
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Encuentra tu alma gemela ",
-                        color = Color.White.copy(alpha = 0.9f),
-                        fontSize = 16.sp
+                        text = "App",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White
                     )
                     Text(
-                        text = "<3",
-                        color = crema,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.scale(heartScale)
+                        text = "Doptar",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Black,
+                        color = crema
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Chile",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF4A7C59)
                     )
                 }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Eslogan estilo B — cursiva elegante
+                Text(
+                    text = "\"Cada mascota merece una segunda oportunidad\"",
+                    color = Color.White.copy(alpha = 0.92f),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Normal,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    lineHeight = 22.sp,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
