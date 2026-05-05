@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.ksp) // Activamos KSP para Room
+    alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -15,7 +15,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -41,7 +40,7 @@ android {
 }
 
 dependencies {
-    // Librerías Base (Android Studio Default)
+    // Base
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -51,21 +50,31 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    // --- NUEVAS DEPENDENCIAS (MVVM, ROOM, NAVEGACIÓN) ---
-
-    // Room (Base de Datos Local)
+    // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler) // Procesador de base de datos
+    ksp(libs.androidx.room.compiler)
 
-    // Navegación (Para moverte entre Login, Splash y Home)
+    // Navegación
     implementation(libs.androidx.navigation.compose)
 
-    // Coil (Para cargar las fotos de los perritos y gatitos)
+    // Coil
     implementation(libs.coil.compose)
 
-    // ViewModel para Compose
+    // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    // Material Icons Extended
+    implementation("androidx.compose.material:material-icons-extended")
+
+    // OpenStreetMap
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
+
+    // GPS
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // SplashScreen
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // Testing
     testImplementation(libs.junit)
@@ -75,17 +84,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-}
-
-dependencies {
-    // ... otras dependencias ...
-    implementation("androidx.compose.material:material-icons-extended")
-}
-dependencies {
-    implementation(libs.androidx.compose.ui.graphics)
-    // Librería para OpenStreetMap
-    implementation("org.osmdroid:osmdroid-android:6.1.18")
-    // Ubicación GPS
-    implementation("com.google.android.gms:play-services-location:21.3.0")
-    implementation("androidx.core:core-splashscreen:1.0.1")
 }

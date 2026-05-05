@@ -14,13 +14,28 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import com.example.appdortarchile20.ui.screens.*
 import com.example.appdortarchile20.ui.theme.AppdortarChile20Theme
 import com.example.appdortarchile20.ui.viewmodel.PetViewModel
 import org.osmdroid.config.Configuration
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,6 +132,16 @@ fun AppNavigation(viewModel: PetViewModel) {
         composable("main_content") {
             val currentUser by viewModel.currentUser.collectAsState()
             val navBackStack by navController.currentBackStackEntryAsState()
+            val snackbarHostState = remember { SnackbarHostState() }
+
+            // Snackbar de bienvenida al entrar
+            LaunchedEffect(Unit) {
+                val nombre = currentUser?.name?.split(" ")?.firstOrNull() ?: "bienvenido"
+                snackbarHostState.showSnackbar(
+                    message = "¡Hola, $nombre! 🐾 Bienvenido a AppDoptar Chile",
+                    duration = SnackbarDuration.Short
+                )
+            }
 
             // Si el usuario pierde la sesión estando en main_content, vuelve al login
             LaunchedEffect(currentUser) {
@@ -128,14 +153,29 @@ fun AppNavigation(viewModel: PetViewModel) {
                 }
             }
 
-            MainDrawerScreen(
-                viewModel = viewModel,
-                onLogout = {
-                    navController.navigate("login") {
-                        popUpTo("main_content") { inclusive = true }
+            Box {
+                MainDrawerScreen(
+                    viewModel = viewModel,
+                    onLogout = {
+                        navController.navigate("login") {
+                            popUpTo("main_content") { inclusive = true }
+                        }
                     }
+                )
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 16.dp)
+                ) { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        containerColor = Color(0xFF2D5A3D),
+                        contentColor = Color.White,
+                        shape = RoundedCornerShape(12.dp)
+                    )
                 }
-            )
+            }
         }
     }
 }

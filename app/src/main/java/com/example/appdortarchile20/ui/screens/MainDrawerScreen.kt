@@ -3,6 +3,7 @@ package com.example.appdortarchile20.ui.screens
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -25,6 +26,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
     val scope = rememberCoroutineScope()
     var currentScreen by remember { mutableStateOf("adoptar") }
     val currentUser by viewModel.currentUser.collectAsState()
+    val allPets by viewModel.allPets.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Paleta cálida
@@ -126,6 +128,22 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Pets, contentDescription = null, tint = naranjaPrincipal) },
                     label = { Text("Adoptar", fontWeight = FontWeight.SemiBold) },
+                    badge = {
+                        if (allPets.isNotEmpty()) {
+                            Surface(
+                                color = naranjaPrincipal,
+                                shape = RoundedCornerShape(20.dp)
+                            ) {
+                                Text(
+                                    text = "${allPets.size}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                    },
                     selected = currentScreen == "adoptar",
                     onClick = { currentScreen = "adoptar"; scope.launch { drawerState.close() } },
                     colors = NavigationDrawerItemDefaults.colors(
