@@ -22,10 +22,10 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onTimeout: () -> Unit) {
-    val naranjaPrincipal = Color(0xFFE85D04)
-    val naranjaClaro     = Color(0xFFFB8500)
+    val naranjaPrincipal = Color(0xFF0038A5)
+    val naranjaClaro     = Color(0xFF1A4FBF)
     val verdeSalvia      = Color(0xFF4A7C59)
-    val crema            = Color(0xFFFFF5EB)
+    val crema            = Color(0xFFD0DEFF)
 
     var startAnimation by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
@@ -40,7 +40,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
         onTimeout()
     }
 
-    FondoHuellas(alpha = 0.18f) {
+    FondoHuellas(alpha = 0.15f, color = Color.White) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -81,7 +81,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
                         text = "Chile",
                         fontSize = 34.sp,
                         fontWeight = FontWeight.Black,
-                        color = Color(0xFF4A7C59)
+                        color = Color(0xFF398E3D)
                     )
                 }
 

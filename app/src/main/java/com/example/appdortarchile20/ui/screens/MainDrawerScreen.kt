@@ -30,10 +30,10 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Paleta cálida
-    val naranjaPrincipal = Color(0xFFE85D04)
-    val naranjaClaro     = Color(0xFFFB8500)
-    val verdeSalvia      = Color(0xFF4A7C59)
-    val crema            = Color(0xFFFFF5EB)
+    val naranjaPrincipal = Color(0xFF0038A5)
+    val naranjaClaro     = Color(0xFF1A4FBF)
+    val verdeSalvia      = Color(0xFF398E3D)
+    val crema            = Color(0xFFD0DEFF)
 
     // Dialog de confirmación de cierre de sesión
     if (showLogoutDialog) {
@@ -67,7 +67,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
         gesturesEnabled = currentScreen != "urgencias",
         drawerContent = {
             ModalDrawerSheet(
-                drawerContainerColor = Color(0xFFFFFBF5),
+                drawerContainerColor = Color(0xFFFFFFFF),
                 modifier = Modifier.width(310.dp)
             ) {
                 // Cabecera con gradiente cálido
@@ -120,7 +120,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                     selected = currentScreen == "perfil",
                     onClick = { currentScreen = "perfil"; scope.launch { drawerState.close() } },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFFFF0E0)
+                        selectedContainerColor = Color(0xFFEEF3FF)
                     ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
@@ -147,7 +147,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                     selected = currentScreen == "adoptar",
                     onClick = { currentScreen = "adoptar"; scope.launch { drawerState.close() } },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFFFF0E0)
+                        selectedContainerColor = Color(0xFFEEF3FF)
                     ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
@@ -169,7 +169,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                     selected = currentScreen == "donaciones",
                     onClick = { currentScreen = "donaciones"; scope.launch { drawerState.close() } },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFFFF0E0)
+                        selectedContainerColor = Color(0xFFEEF3FF)
                     ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
@@ -180,7 +180,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                     selected = currentScreen == "dar",
                     onClick = { currentScreen = "dar"; scope.launch { drawerState.close() } },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFEDF5EF)
+                        selectedContainerColor = Color(0xFFE8F5E9)
                     ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
@@ -191,7 +191,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                     selected = currentScreen == "blog",
                     onClick = { currentScreen = "blog"; scope.launch { drawerState.close() } },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFFFF0E0)
+                        selectedContainerColor = Color(0xFFEEF3FF)
                     ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
@@ -207,7 +207,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                     selected = currentScreen == "nosotros",
                     onClick = { currentScreen = "nosotros"; scope.launch { drawerState.close() } },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFFFF0E0)
+                        selectedContainerColor = Color(0xFFEEF3FF)
                     ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
@@ -218,7 +218,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                     selected = currentScreen == "contacto",
                     onClick = { currentScreen = "contacto"; scope.launch { drawerState.close() } },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFFFF0E0)
+                        selectedContainerColor = Color(0xFFEEF3FF)
                     ),
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )

@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
@@ -49,6 +50,7 @@ val huellasPosiciones = listOf(
 @Composable
 fun FondoHuellas(
     modifier: Modifier = Modifier,
+    color: Color = Color(0xFF0038A5),
     alpha: Float = 0.13f,
     content: @Composable () -> Unit
 ) {
@@ -70,7 +72,8 @@ fun FondoHuellas(
                         )
                         .rotate(huella.rotacion)
                         .alpha(alpha),
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Fit,
+                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(color)
                 )
             }
         }

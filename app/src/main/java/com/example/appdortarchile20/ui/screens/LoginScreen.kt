@@ -34,9 +34,9 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     val loginState by viewModel.loginState.collectAsState()
 
-    val naranjaPrincipal = Color(0xFFE85D04)
-    val naranjaClaro     = Color(0xFFFB8500)
-    val crema            = Color(0xFFFFF5EB)
+    val naranjaPrincipal = Color(0xFF0038A5)
+    val naranjaClaro     = Color(0xFF1A4FBF)
+    val crema            = Color(0xFFD0DEFF)
 
     // Animación de entrada del logo (bounce)
     var logoVisible by remember { mutableStateOf(false) }
@@ -66,12 +66,15 @@ fun LoginScreen(
         if (loginState is LoginState.Success) onLoginSuccess()
     }
 
-    FondoHuellas(alpha = 0.18f) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Fondo gradiente azul
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(brush = Brush.verticalGradient(colors = listOf(naranjaPrincipal, naranjaClaro)))
-        ) {
+        )
+        // Huellas encima del gradiente en blanco semitransparente
+        FondoHuellas(alpha = 0.12f, color = Color.White) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -97,7 +100,7 @@ fun LoginScreen(
                     Text("App",    fontSize = 32.sp, fontWeight = FontWeight.Black, color = Color.White)
                     Text("Doptar", fontSize = 32.sp, fontWeight = FontWeight.Black, color = crema)
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Chile",  fontSize = 32.sp, fontWeight = FontWeight.Black, color = Color(0xFF4A7C59))
+                    Text("Chile",  fontSize = 32.sp, fontWeight = FontWeight.Black, color = Color(0xFF398E3D))
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -176,6 +179,6 @@ fun LoginScreen(
                     }
                 }
             }
-        }
-    }
+        } // FondoHuellas
+    } // Box externo
 }

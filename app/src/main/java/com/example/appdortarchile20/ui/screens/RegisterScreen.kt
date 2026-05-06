@@ -1,5 +1,8 @@
 package com.example.appdortarchile20.ui.screens
 
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,16 +11,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.appdortarchile20.R
 import com.example.appdortarchile20.data.model.User
 import com.example.appdortarchile20.ui.viewmodel.PetViewModel
 import com.example.appdortarchile20.ui.viewmodel.LoginState
 import com.example.appdortarchile20.data.ChileData
 
-// Funciones de validación
 private fun validarEmail(email: String): String? {
     if (email.isEmpty()) return "El correo es obligatorio"
     val regex = Regex("^[^@]+@[^@]+\\.[a-zA-Z]{2,}$")
@@ -44,39 +53,57 @@ private fun validarTelefono(telefono: String): String? {
 }
 
 private fun validarEdad(edad: String): String? {
-    if (edad.isEmpty()) return null // opcional
+    if (edad.isEmpty()) return null
     val num = edad.toIntOrNull() ?: return "Ingresa solo números"
     if (num < 1 || num > 120) return "Ingresa una edad válida (1-120)"
     return null
 }
 
+// Colores para campos sobre fondo azul
+private val campoColores @Composable get() = OutlinedTextFieldDefaults.colors(
+    unfocusedTextColor = Color.White,
+    focusedTextColor = Color.White,
+    unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
+    focusedBorderColor = Color.White,
+    cursorColor = Color.White,
+    unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+    focusedLabelColor = Color.White,
+    unfocusedLeadingIconColor = Color.White.copy(alpha = 0.7f),
+    focusedLeadingIconColor = Color.White,
+    unfocusedTrailingIconColor = Color.White.copy(alpha = 0.7f),
+    focusedTrailingIconColor = Color.White,
+    unfocusedPlaceholderColor = Color.White.copy(alpha = 0.5f),
+    focusedPlaceholderColor = Color.White.copy(alpha = 0.7f),
+    errorBorderColor = Color(0xFFFFCDD2),
+    errorLabelColor = Color(0xFFFFCDD2),
+    errorTextColor = Color.White,
+    errorCursorColor = Color(0xFFFFCDD2),
+    errorLeadingIconColor = Color(0xFFFFCDD2)
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
     var name by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") } // Solo los 8 dígitos
+    var phone by remember { mutableStateOf("") }
     var selectedRegion by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-
-    // Mostrar errores solo después del primer intento
     var intentado by remember { mutableStateOf(false) }
 
     val loginState by viewModel.loginState.collectAsState()
-
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) onRegistered()
     }
 
-    // Errores de validación
-    val errorNombre = if (intentado) validarNombre(name) else null
+    val errorNombre   = if (intentado) validarNombre(name) else null
     val errorTelefono = if (intentado) validarTelefono(phone) else null
-    val errorEdad = if (intentado) validarEdad(age) else null
-    val errorEmail = if (intentado) validarEmail(email) else null
+    val errorEdad     = if (intentado) validarEdad(age) else null
+    val errorEmail    = if (intentado) validarEmail(email) else null
     val errorPassword = if (intentado) validarPassword(password) else null
-    val errorRegion = if (intentado && selectedRegion.isEmpty()) "Selecciona una región" else null
+    val errorRegion   = if (intentado && selectedRegion.isEmpty()) "Selecciona una región" else null
 
     val formularioValido = validarNombre(name) == null &&
             validarTelefono(phone) == null &&
@@ -85,171 +112,225 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
             validarPassword(password) == null &&
             selectedRegion.isNotEmpty()
 
-    FondoHuellas {
-        Column(
+    val azulPrincipal = Color(0xFF0038A5)
+    val azulClaro     = Color(0xFF1A4FBF)
+    val crema         = Color(0xFFD0DEFF)
+
+    // Animación de entrada igual que LoginScreen
+    var visible by remember { mutableStateOf(false) }
+    val screenAlpha by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(durationMillis = 400),
+        label = "ScreenFade"
+    )
+    val screenOffset by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (visible) 0f else 80f,
+        animationSpec = tween(durationMillis = 400),
+        label = "ScreenSlide"
+    )
+    LaunchedEffect(Unit) { visible = true }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer(alpha = screenAlpha, translationX = screenOffset)
+    ) {
+        // Fondo gradiente azul
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Spacer(Modifier.height(8.dp))
-            Text("Crear cuenta", style = MaterialTheme.typography.headlineMedium)
-            Text(
-                "Completa tus datos para empezar a adoptar.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(4.dp))
-
-            // Nombre
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it.filter { c -> c.isLetter() || c.isWhitespace() } },
-                label = { Text("Nombre completo") },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                isError = errorNombre != null,
-                supportingText = { if (errorNombre != null) Text(errorNombre, color = MaterialTheme.colorScheme.error) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                singleLine = true
-            )
-
-            // Teléfono con prefijo +569 fijo e imborrable
-            OutlinedTextField(
-                value = phone,
-                onValueChange = { input ->
-                    // Solo guardar dígitos, máximo 8
-                    val soloDigitos = input.filter { it.isDigit() }.take(8)
-                    phone = soloDigitos
-                },
-                label = { Text("Teléfono celular") },
-                leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                prefix = { Text("+569 ", color = MaterialTheme.colorScheme.onSurface) },
-                isError = errorTelefono != null,
-                supportingText = {
-                    if (errorTelefono != null) Text(errorTelefono, color = MaterialTheme.colorScheme.error)
-                    else Text("${phone.length}/8 dígitos", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                singleLine = true
-            )
-
-            // Región
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded },
-                modifier = Modifier.fillMaxWidth()
+                .background(brush = Brush.verticalGradient(colors = listOf(azulPrincipal, azulClaro)))
+        )
+        // Huellas blancas encima
+        FondoHuellas(alpha = 0.12f, color = Color.White) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedTextField(
-                    value = selectedRegion,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Selecciona tu región") },
-                    leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    isError = errorRegion != null,
-                    supportingText = { if (errorRegion != null) Text(errorRegion, color = MaterialTheme.colorScheme.error) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp)
-                )
-                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    ChileData.regionesChile.forEach { region ->
-                        DropdownMenuItem(
-                            text = { Text(region) },
-                            onClick = { selectedRegion = region; expanded = false }
-                        )
-                    }
-                }
-            }
+                Spacer(Modifier.height(8.dp))
 
-            // Edad
-            OutlinedTextField(
-                value = age,
-                onValueChange = { age = it.filter { c -> c.isDigit() }.take(3) },
-                label = { Text("Edad") },
-                leadingIcon = { Icon(Icons.Default.Cake, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                isError = errorEdad != null,
-                supportingText = { if (errorEdad != null) Text(errorEdad, color = MaterialTheme.colorScheme.error) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                singleLine = true
-            )
-
-            // Email
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it.trim() },
-                label = { Text("Correo electrónico") },
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                isError = errorEmail != null,
-                supportingText = { if (errorEmail != null) Text(errorEmail, color = MaterialTheme.colorScheme.error) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                singleLine = true
-            )
-
-            // Contraseña
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Contraseña") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                visualTransformation = PasswordVisualTransformation(),
-                isError = errorPassword != null,
-                supportingText = {
-                    if (errorPassword != null) Text(errorPassword, color = MaterialTheme.colorScheme.error)
-                    else Text("Mínimo 6 caracteres", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                singleLine = true
-            )
-
-            // Error de Room (email duplicado etc)
-            if (loginState is LoginState.Error) {
-                Surface(
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth()
+                // Logo pequeño
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 4.dp)
                 ) {
-                    Text(
-                        (loginState as LoginState.Error).message,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(12.dp)
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp)
                     )
+                    Spacer(Modifier.width(10.dp))
+                    Column {
+                        Row {
+                            Text("App",    fontSize = 20.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            Text("Doptar", fontSize = 20.sp, fontWeight = FontWeight.Black, color = crema)
+                            Spacer(Modifier.width(4.dp))
+                            Text("Chile",  fontSize = 20.sp, fontWeight = FontWeight.Black, color = Color(0xFF81C784))
+                        }
+                        Text("Crea tu cuenta", fontSize = 13.sp, color = Color.White.copy(alpha = 0.8f))
+                    }
                 }
-            }
 
-            Spacer(Modifier.height(4.dp))
+                // Nombre
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it.filter { c -> c.isLetter() || c.isWhitespace() } },
+                    label = { Text("Nombre completo") },
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    isError = errorNombre != null,
+                    supportingText = {
+                        if (errorNombre != null) Text(errorNombre, color = Color(0xFFFFCDD2))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = campoColores,
+                    singleLine = true
+                )
 
-            Button(
-                onClick = {
-                    intentado = true
-                    if (formularioValido) {
-                        viewModel.register(
-                            User(
-                                id = 0,
-                                name = name.trim(),
-                                phone = "+569${phone.trim()}",
-                                region = selectedRegion,
-                                age = age.toIntOrNull() ?: 0,
-                                email = email.trim(),
-                                password = password
+                // Teléfono
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it.filter { c -> c.isDigit() }.take(8) },
+                    label = { Text("Teléfono celular") },
+                    leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
+                    prefix = { Text("+569 ", color = Color.White) },
+                    isError = errorTelefono != null,
+                    supportingText = {
+                        if (errorTelefono != null) Text(errorTelefono, color = Color(0xFFFFCDD2))
+                        else Text("${phone.length}/8 dígitos", color = Color.White.copy(alpha = 0.6f))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = campoColores,
+                    singleLine = true
+                )
+
+                // Región
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    OutlinedTextField(
+                        value = selectedRegion,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Selecciona tu región") },
+                        leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        isError = errorRegion != null,
+                        supportingText = {
+                            if (errorRegion != null) Text(errorRegion, color = Color(0xFFFFCDD2))
+                        },
+                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = campoColores
+                    )
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        ChileData.regionesChile.forEach { region ->
+                            DropdownMenuItem(
+                                text = { Text(region) },
+                                onClick = { selectedRegion = region; expanded = false }
                             )
+                        }
+                    }
+                }
+
+                // Edad
+                OutlinedTextField(
+                    value = age,
+                    onValueChange = { age = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Edad") },
+                    leadingIcon = { Icon(Icons.Default.Cake, contentDescription = null) },
+                    isError = errorEdad != null,
+                    supportingText = {
+                        if (errorEdad != null) Text(errorEdad, color = Color(0xFFFFCDD2))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = campoColores,
+                    singleLine = true
+                )
+
+                // Email
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it.trim() },
+                    label = { Text("Correo electrónico") },
+                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                    isError = errorEmail != null,
+                    supportingText = {
+                        if (errorEmail != null) Text(errorEmail, color = Color(0xFFFFCDD2))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = campoColores,
+                    singleLine = true
+                )
+
+                // Contraseña
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Contraseña") },
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    isError = errorPassword != null,
+                    supportingText = {
+                        if (errorPassword != null) Text(errorPassword, color = Color(0xFFFFCDD2))
+                        else Text("Mínimo 6 caracteres", color = Color.White.copy(alpha = 0.6f))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = campoColores,
+                    singleLine = true
+                )
+
+                if (loginState is LoginState.Error) {
+                    Surface(
+                        color = Color.White.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            (loginState as LoginState.Error).message,
+                            color = Color(0xFFFFCDD2),
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(12.dp)
                         )
                     }
-                },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Text("Crear mi cuenta", fontWeight = FontWeight.Bold)
-            }
+                }
 
-            Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(4.dp))
+
+                Button(
+                    onClick = {
+                        intentado = true
+                        if (formularioValido) {
+                            viewModel.register(
+                                User(
+                                    id = 0,
+                                    name = name.trim(),
+                                    phone = "+569${phone.trim()}",
+                                    region = selectedRegion,
+                                    age = age.toIntOrNull() ?: 0,
+                                    email = email.trim(),
+                                    password = password
+                                )
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                ) {
+                    Text("Crear mi cuenta", color = azulPrincipal, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+
+                Spacer(Modifier.height(8.dp))
+            }
         }
     }
 }

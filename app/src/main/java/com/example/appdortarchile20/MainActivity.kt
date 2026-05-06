@@ -106,7 +106,21 @@ fun AppNavigation(viewModel: PetViewModel) {
         }
 
         // 2. Pantalla de Registro
-        composable("register") {
+        composable(
+            "register",
+            enterTransition = {
+                fadeIn(animationSpec = tween(400)) +
+                        slideInHorizontally(animationSpec = tween(400)) { it / 3 }
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(400)) +
+                        slideOutHorizontally(animationSpec = tween(400)) { -it / 3 }
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(400)) +
+                        slideOutHorizontally(animationSpec = tween(400)) { it / 3 }
+            }
+        ) {
             RegisterScreen(
                 viewModel = viewModel,
                 onRegistered = {

@@ -78,7 +78,11 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
                 },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                 )
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
@@ -128,8 +132,12 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
 
             // Tipo de animal
             Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(14.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.5.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
@@ -206,8 +214,12 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
 
             // --- SALUD ---
             Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(14.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.5.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {

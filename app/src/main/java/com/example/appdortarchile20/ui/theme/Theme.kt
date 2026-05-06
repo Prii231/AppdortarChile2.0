@@ -12,64 +12,62 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// --- ESQUEMA CLARO ---
 private val LightColorScheme = lightColorScheme(
-    primary          = Naranja600,        // Botones, FAB, elementos activos
+    primary          = Azul600,
     onPrimary        = Color.White,
-    primaryContainer = Naranja100,        // Chips, badges, fondos suaves
-    onPrimaryContainer = Naranja800,
+    primaryContainer = Azul100,
+    onPrimaryContainer = Azul800,
 
-    secondary        = Verde600,          // Elementos secundarios
+    secondary        = Verde600,
     onSecondary      = Color.White,
     secondaryContainer = Verde100,
     onSecondaryContainer = Verde700,
 
-    tertiary         = Naranja500,        // Acentos y highlights
+    tertiary         = Azul500,
     onTertiary       = Color.White,
-    tertiaryContainer = Naranja50,
-    onTertiaryContainer = Naranja700,
+    tertiaryContainer = Azul50,
+    onTertiaryContainer = Azul700,
 
-    background       = CremaBg,           // Fondo general cálido
-    onBackground     = OscuroCaldo,
-    surface          = CremaCard,         // Tarjetas y superficies
-    onSurface        = OscuroCaldo,
-    surfaceVariant   = Naranja50,
-    onSurfaceVariant = GrisCaldo,
+    background       = FondoGris,
+    onBackground     = OscuroTexto,
+    surface          = FondoCard,
+    onSurface        = OscuroTexto,
+    surfaceVariant   = Azul50,
+    onSurfaceVariant = GrisTexto,
 
-    error            = RojoUrgencia,
+    error            = RojoError,
     onError          = Color.White,
 
-    outline          = Color(0xFFD4C0A8), // Bordes cálidos
-    outlineVariant   = Color(0xFFEDE0CC),
+    outline          = Color(0xFFBBCCEE),
+    outlineVariant   = Color(0xFFDDE5F5),
 )
 
-// --- ESQUEMA OSCURO ---
 private val DarkColorScheme = darkColorScheme(
-    primary          = NaranjaClaro,
-    onPrimary        = Color(0xFF4A2000),
-    primaryContainer = Naranja800,
-    onPrimaryContainer = Naranja100,
+    primary          = AzulClaro,
+    onPrimary        = Color(0xFF001A6B),
+    primaryContainer = Azul800,
+    onPrimaryContainer = Azul100,
 
-    secondary        = VerdeClaro,
-    onSecondary      = Color(0xFF0D2B1A),
+    secondary        = VerdeClaroDark,
+    onSecondary      = Color(0xFF1B3A1D),
     secondaryContainer = Verde800,
     onSecondaryContainer = Verde100,
 
-    tertiary         = Naranja500,
-    onTertiary       = Color(0xFF3D1E00),
+    tertiary         = AzulClaro,
+    onTertiary       = Color(0xFF001A6B),
 
     background       = FondoOscuro,
-    onBackground     = Color(0xFFF5E6D3),
+    onBackground     = Color(0xFFE8EEF8),
     surface          = SuperfOscura,
-    onSurface        = Color(0xFFF5E6D3),
-    surfaceVariant   = Color(0xFF3D2910),
-    onSurfaceVariant = Color(0xFFD4B896),
+    onSurface        = Color(0xFFE8EEF8),
+    surfaceVariant   = Color(0xFF1A2540),
+    onSurfaceVariant = Color(0xFFAABBDD),
 
     error            = Color(0xFFFF8A80),
     onError          = Color(0xFF690000),
 
-    outline          = Color(0xFF6B5040),
-    outlineVariant   = Color(0xFF3D2910),
+    outline          = Color(0xFF3A4E6E),
+    outlineVariant   = Color(0xFF1A2540),
 )
 
 @Composable
@@ -79,7 +77,6 @@ fun AppdortarChile20Theme(
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
-    // Colorear la barra de estado con el naranja principal
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
