@@ -51,6 +51,9 @@ fun AdoptarScreen(viewModel: PetViewModel) {
     var expandedRegion by remember { mutableStateOf(false) }
     var selectedPet by remember { mutableStateOf<Pet?>(null) }
     var petAEliminar by remember { mutableStateOf<Pet?>(null) }
+    var chatPetId by remember { mutableStateOf<Int?>(null) }
+    var chatOwnerEmail by remember { mutableStateOf("") }
+    var chatOwnerName by remember { mutableStateOf("") }
 
     // Lista filtrada combinando búsqueda + tipo + región + mis mascotas
     val filteredList = pets.filter { pet ->
@@ -331,18 +334,36 @@ fun AdoptarScreen(viewModel: PetViewModel) {
 
         } // FondoHuellas
 
+        if (chatPetId != null) {
+            ChatScreen(
+                petId = chatPetId!!,
+                petNombre = pets.find { it.id == chatPetId }?.name ?: "",
+                otroUsuarioEmail = chatOwnerEmail,
+                otroUsuarioNombre = chatOwnerName,
+                viewModel = viewModel,
+                onBack = { chatPetId = null }
+            )
+        }
+
         if (selectedPet != null) {
-            PetDetailDialog(pet = selectedPet!!, onDismiss = { selectedPet = null })
+            PetDetailDialog(
+                pet = selectedPet!!,
+                onDismiss = { selectedPet = null },
+                onIniciarChat = { petId, ownerEmail, ownerName ->
+                    chatPetId = petId
+                    chatOwnerEmail = ownerEmail
+                    chatOwnerName = ownerName
+                    selectedPet = null
+                }
+            )
         }
 
         if (petAEliminar != null) {
             AlertDialog(
                 onDismissRequest = { petAEliminar = null },
                 icon = {
-                    Icon(
-                        Icons.Default.Delete, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                    Icon(Icons.Default.Delete, contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error)
                 },
                 title = { Text("¿Eliminar publicación?", fontWeight = FontWeight.Bold) },
                 text = {
@@ -354,21 +375,16 @@ fun AdoptarScreen(viewModel: PetViewModel) {
                             viewModel.deletePet(petAEliminar!!)
                             petAEliminar = null
                         },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Text("Eliminar")
-                    }
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) { Text("Eliminar") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { petAEliminar = null }) {
-                        Text("Cancelar")
-                    }
+                    TextButton(onClick = { petAEliminar = null }) { Text("Cancelar") }
                 }
             )
         }
     }
+
     @Composable
     fun SkeletonCard() {
         val infiniteTransition = rememberInfiniteTransition(label = "Skeleton")

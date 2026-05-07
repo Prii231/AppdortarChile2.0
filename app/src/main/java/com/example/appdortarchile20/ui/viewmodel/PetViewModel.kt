@@ -4,9 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appdortarchile20.data.local.AppDatabase
+import com.example.appdortarchile20.data.model.Evaluacion
+import com.example.appdortarchile20.data.model.Mensaje
 import com.example.appdortarchile20.data.model.Pet
 import com.example.appdortarchile20.data.model.UrgenciaReporte
 import com.example.appdortarchile20.data.model.User
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -111,6 +114,59 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     Pet(3, "Pipo", "Otro", "1 año", "Biobío", "Concepción", "https://picsum.photos/id/1025/500", false, false, "Conejito sociable.", "Andrés Jara", "+5695554", "andres@example.com")
                 )
                 dummyPets.forEach { dao.addPet(it) }
+            }
+        }
+    }
+
+    // --- CHAT ---
+    fun getMensajesChat(petId: Int, email1: String, email2: String) =
+        dao.getMensajesChat(petId, email1, email2)
+            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    fun getMensajesUsuario(email: String) =
+        dao.getMensajesUsuario(email)
+            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    val mensajesNoLeidos: StateFlow<Int> = _currentUser
+        .flatMapLatest { user ->
+            if (user != null) dao.getMensajesNoLeidos(user.email)
+            else kotlinx.coroutines.flow.flowOf(0)
+        }.stateIn(viewModelScope, SharingStarted.Lazily, 0)
+
+    fun enviarMensaje(petId: Int, destinatarioEmail: String, texto: String) {
+        val remitente = _currentUser.value?.email ?: return
+        viewModelScope.launch {
+            dao.insertMensaje(
+                Mensaje(petId = petId, remitenteEmail = remitente,
+                    destinatarioEmail = destinatarioEmail, texto = texto)
+            )
+        }
+    }
+
+    fun marcarComoLeidos(petId: Int) {
+        val email = _currentUser.value?.email ?: return
+        viewModelScope.launch { dao.marcarComoLeidos(petId, email) }
+    }
+
+    // --- EVALUACIONES ---
+    fun getPromedioEstrellas(email: String) =
+        dao.getPromedioEstrellas(email)
+            .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    fun getEvaluacionesUsuario(email: String) =
+        dao.getEvaluacionesUsuario(email)
+            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    fun enviarEvaluacion(petId: Int, evaluadoEmail: String, estrellas: Int, comentario: String) {
+        val evaluador = _currentUser.value?.email ?: return
+        viewModelScope.launch {
+            val existente = dao.getEvaluacionExistente(petId, evaluador)
+            if (existente == null) {
+                dao.insertEvaluacion(
+                    Evaluacion(petId = petId, evaluadorEmail = evaluador,
+                        evaluadoEmail = evaluadoEmail, estrellas = estrellas,
+                        comentario = comentario)
+                )
             }
         }
     }

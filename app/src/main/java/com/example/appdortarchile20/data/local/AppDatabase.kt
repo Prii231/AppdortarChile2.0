@@ -2,9 +2,7 @@ package com.example.appdortarchile20.data.local
 
 import android.content.Context
 import androidx.room.*
-import com.example.appdortarchile20.data.model.User
-import com.example.appdortarchile20.data.model.Pet
-import com.example.appdortarchile20.data.model.UrgenciaReporte
+import com.example.appdortarchile20.data.model.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -44,19 +42,58 @@ interface AppDao {
 
     @Query("SELECT * FROM urgencias ORDER BY horaReporte DESC")
     fun getAllReportes(): Flow<List<UrgenciaReporte>>
+
+    // --- MENSAJES ---
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMensaje(mensaje: Mensaje)
+
+    @Query("""
+        SELECT * FROM mensajes 
+        WHERE petId = :petId AND (
+            (remitenteEmail = :email1 AND destinatarioEmail = :email2) OR
+            (remitenteEmail = :email2 AND destinatarioEmail = :email1)
+        )
+        ORDER BY timestamp ASC
+    """)
+    fun getMensajesChat(petId: Int, email1: String, email2: String): Flow<List<Mensaje>>
+
+    @Query("""
+        SELECT * FROM mensajes 
+        WHERE remitenteEmail = :email OR destinatarioEmail = :email
+        ORDER BY timestamp DESC
+    """)
+    fun getMensajesUsuario(email: String): Flow<List<Mensaje>>
+
+    @Query("SELECT COUNT(*) FROM mensajes WHERE destinatarioEmail = :email AND leido = 0")
+    fun getMensajesNoLeidos(email: String): Flow<Int>
+
+    @Query("UPDATE mensajes SET leido = 1 WHERE petId = :petId AND destinatarioEmail = :email")
+    suspend fun marcarComoLeidos(petId: Int, email: String)
+
+    // --- EVALUACIONES ---
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertEvaluacion(evaluacion: Evaluacion)
+
+    @Query("SELECT * FROM evaluaciones WHERE evaluadoEmail = :email")
+    fun getEvaluacionesUsuario(email: String): Flow<List<Evaluacion>>
+
+    @Query("SELECT AVG(estrellas) FROM evaluaciones WHERE evaluadoEmail = :email")
+    fun getPromedioEstrellas(email: String): Flow<Float?>
+
+    @Query("SELECT * FROM evaluaciones WHERE petId = :petId AND evaluadorEmail = :evaluadorEmail LIMIT 1")
+    suspend fun getEvaluacionExistente(petId: Int, evaluadorEmail: String): Evaluacion?
 }
 
 @Database(
-    entities = [User::class, Pet::class, UrgenciaReporte::class],
-    version = 5,
+    entities = [User::class, Pet::class, UrgenciaReporte::class, Mensaje::class, Evaluacion::class],
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun appDao(): AppDao
 
     companion object {
-        @Volatile
-        private var INSTANCE: AppDatabase? = null
+        @Volatile private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {

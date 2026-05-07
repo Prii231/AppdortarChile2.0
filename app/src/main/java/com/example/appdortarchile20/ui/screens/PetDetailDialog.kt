@@ -16,7 +16,11 @@ import coil.compose.AsyncImage
 import com.example.appdortarchile20.data.model.Pet
 
 @Composable
-fun PetDetailDialog(pet: Pet, onDismiss: () -> Unit) {
+fun PetDetailDialog(
+    pet: Pet,
+    onDismiss: () -> Unit,
+    onIniciarChat: ((petId: Int, ownerEmail: String, ownerName: String) -> Unit)? = null
+) {
     var showContact by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -183,6 +187,21 @@ fun PetDetailDialog(pet: Pet, onDismiss: () -> Unit) {
                     Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Ver contacto")
+                }
+            } else {
+                Button(
+                    onClick = {
+                        onDismiss()
+                        onIniciarChat?.invoke(pet.id, pet.ownerEmail, pet.ownerName)
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Iniciar chat")
                 }
             }
         },
