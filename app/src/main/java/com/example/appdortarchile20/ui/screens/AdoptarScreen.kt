@@ -54,6 +54,7 @@ fun AdoptarScreen(viewModel: PetViewModel) {
     var chatPetId by remember { mutableStateOf<Int?>(null) }
     var chatOwnerEmail by remember { mutableStateOf("") }
     var chatOwnerName by remember { mutableStateOf("") }
+    var chatPet by remember { mutableStateOf<Pet?>(null) }
 
     // Lista filtrada combinando búsqueda + tipo + región + mis mascotas
     val filteredList = pets.filter { pet ->
@@ -337,11 +338,12 @@ fun AdoptarScreen(viewModel: PetViewModel) {
         if (chatPetId != null) {
             ChatScreen(
                 petId = chatPetId!!,
-                petNombre = pets.find { it.id == chatPetId }?.name ?: "",
+                petNombre = chatPet?.name ?: "",
                 otroUsuarioEmail = chatOwnerEmail,
                 otroUsuarioNombre = chatOwnerName,
                 viewModel = viewModel,
-                onBack = { chatPetId = null }
+                onBack = { chatPetId = null },
+                pet = chatPet
             )
         }
 
@@ -353,6 +355,7 @@ fun AdoptarScreen(viewModel: PetViewModel) {
                     chatPetId = petId
                     chatOwnerEmail = ownerEmail
                     chatOwnerName = ownerName
+                    chatPet = selectedPet
                     selectedPet = null
                 }
             )

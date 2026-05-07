@@ -27,7 +27,13 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
     var currentScreen by remember { mutableStateOf("adoptar") }
     val currentUser by viewModel.currentUser.collectAsState()
     val allPets by viewModel.allPets.collectAsState()
+    val mensajesNoLeidos by viewModel.mensajesNoLeidos.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
+
+    // Variables para abrir chat desde MisChats
+    var chatDesdeDrawerPetId by remember { mutableStateOf<Int?>(null) }
+    var chatDesdeDrawerEmail by remember { mutableStateOf("") }
+    var chatDesdeDrawerNombre by remember { mutableStateOf("") }
 
     // Paleta cálida
     val naranjaPrincipal = Color(0xFF0038A5)
@@ -152,6 +158,29 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
+                // Mis Chats con badge de mensajes no leídos
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Chat, contentDescription = null, tint = naranjaPrincipal) },
+                    label = { Text("Mis Chats", fontWeight = FontWeight.SemiBold) },
+                    badge = {
+                        if (mensajesNoLeidos > 0) {
+                            Surface(color = Color(0xFFD32F2F), shape = RoundedCornerShape(20.dp)) {
+                                Text("$mensajesNoLeidos",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                            }
+                        }
+                    },
+                    selected = currentScreen == "chats",
+                    onClick = { currentScreen = "chats"; scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = Color(0xFFEEF3FF)
+                    ),
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFD32F2F)) },
                     label = { Text("Urgencias", fontWeight = FontWeight.ExtraBold, color = Color(0xFFD32F2F)) },
@@ -256,6 +285,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                                 "nosotros"   -> "Nuestra Misión"
                                 "donaciones" -> "Campañas de Donación"
                                 "perfil"     -> "Mi Perfil"
+                                "chats"      -> "Mis Chats"
                                 else         -> "Contacto"
                             },
                             fontWeight = FontWeight.Bold
@@ -292,6 +322,30 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                         "nosotros"   -> NosotrosScreen()
                         "donaciones" -> DonacionesScreen()
                         "perfil"     -> PerfilScreen(viewModel)
+                        "chats"      -> {
+                            if (chatDesdeDrawerPetId != null) {
+                                ChatScreen(
+                                    petId = chatDesdeDrawerPetId!!,
+                                    petNombre = viewModel.allPets.value
+                                        .find { it.id == chatDesdeDrawerPetId }?.name ?: "",
+                                    otroUsuarioEmail = chatDesdeDrawerEmail,
+                                    otroUsuarioNombre = chatDesdeDrawerNombre,
+                                    viewModel = viewModel,
+                                    pet = viewModel.allPets.value
+                                        .find { it.id == chatDesdeDrawerPetId },
+                                    onBack = { chatDesdeDrawerPetId = null }
+                                )
+                            } else {
+                                MisChatsScreen(
+                                    viewModel = viewModel,
+                                    onAbrirChat = { petId, otroEmail, otroNombre ->
+                                        chatDesdeDrawerPetId = petId
+                                        chatDesdeDrawerEmail = otroEmail
+                                        chatDesdeDrawerNombre = otroNombre
+                                    }
+                                )
+                            }
+                        }
                         else         -> ContactoScreen()
                     }
                 }
