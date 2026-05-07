@@ -150,15 +150,39 @@ fun ChatScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0),
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
-                        Text(petNombre, style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold)
-                        Text("Chat con $otroUsuarioNombre",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.8f))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // Avatar con inicial
+                        Surface(
+                            shape = CircleShape,
+                            color = Color.White.copy(alpha = 0.2f),
+                            modifier = Modifier.size(38.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxSize()) {
+                                Text(
+                                    otroUsuarioNombre.firstOrNull()?.uppercase() ?: "?",
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    fontSize = 16.sp
+                                )
+                            }
+                        }
+                        Column {
+                            Text(petNombre,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White)
+                            Text("Con $otroUsuarioNombre",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.8f))
+                        }
                     }
                 },
                 navigationIcon = {

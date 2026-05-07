@@ -274,34 +274,37 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
     ) {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = when (currentScreen) {
-                                "adoptar"    -> "Mascotas en Adopción"
-                                "urgencias"  -> "Mapa de Urgencias"
-                                "dar"        -> "Publicar Mascota"
-                                "blog"       -> "Consejos y Blog"
-                                "nosotros"   -> "Nuestra Misión"
-                                "donaciones" -> "Campañas de Donación"
-                                "perfil"     -> "Mi Perfil"
-                                "chats"      -> "Mis Chats"
-                                else         -> "Contacto"
-                            },
-                            fontWeight = FontWeight.Bold
+                // Ocultar TopBar cuando hay un chat abierto desde Mis Chats
+                if (!(currentScreen == "chats" && chatDesdeDrawerPetId != null)) {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = when (currentScreen) {
+                                    "adoptar"    -> "Mascotas en Adopción"
+                                    "urgencias"  -> "Mapa de Urgencias"
+                                    "dar"        -> "Publicar Mascota"
+                                    "blog"       -> "Consejos y Blog"
+                                    "nosotros"   -> "Nuestra Misión"
+                                    "donaciones" -> "Campañas de Donación"
+                                    "perfil"     -> "Mi Perfil"
+                                    "chats"      -> "Mis Chats"
+                                    else         -> "Contacto"
+                                },
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                Icon(Icons.Default.Menu, contentDescription = "Menú")
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = naranjaPrincipal,
+                            titleContentColor = Color.White,
+                            navigationIconContentColor = Color.White
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menú")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = naranjaPrincipal,
-                        titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White
                     )
-                )
+                } // fin if ocultar TopBar
             }
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
