@@ -1,13 +1,18 @@
 package com.example.appdortarchile20.ui.screens
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -64,15 +69,20 @@ fun NosotrosScreen() {
                 "Comunidad" to "Conectamos personas que comparten el amor por los animales."
             ).forEach { (titulo, desc) ->
                 Surface(
-                    color = MaterialTheme.colorScheme.surface,
+                    color = MaterialTheme.colorScheme.primaryContainer,
                     shape = RoundedCornerShape(14.dp),
-                    tonalElevation = 2.dp,
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
-                        Text(titulo, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Text(titulo, style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.height(4.dp))
-                        Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(desc, style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
                 }
             }
@@ -126,12 +136,14 @@ fun BlogScreen() {
 }
 
 @Composable
-fun BlogItem(titulo: String, contenido: String, tag: String) {
+fun BlogItem(titulo: String, contenido: String, tag: String, textoCompleto: String = "") {
+    var expandido by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = if (expandido) 6.dp else 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Surface(
@@ -146,21 +158,52 @@ fun BlogItem(titulo: String, contenido: String, tag: String) {
                 )
             }
             Spacer(Modifier.height(8.dp))
-            Text(
-                text = titulo,
-                style = MaterialTheme.typography.titleMedium
-            )
+            Text(text = titulo, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(4.dp))
             Text(
                 text = contenido,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            // Contenido expandido con animación
+            AnimatedVisibility(
+                visible = expandido,
+                enter = expandVertically() +
+                        fadeIn(),
+                exit = shrinkVertically() +
+                        fadeOut()
+            ) {
+                Column {
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = if (textoCompleto.isNotEmpty()) textoCompleto
+                        else "Este tema es fundamental para el bienestar animal. Te recomendamos consultar con un veterinario de confianza y mantenerte informado sobre las últimas recomendaciones. La comunidad AppDoptar Chile está aquí para ayudarte en cada paso del proceso.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
             TextButton(
-                onClick = { },
+                onClick = { expandido = !expandido },
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Leer más", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (expandido) "Ver menos" else "Leer más",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(Modifier.width(4.dp))
+                Icon(
+                    if (expandido) Icons.Default.KeyboardArrowUp
+                    else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }
@@ -172,6 +215,15 @@ fun ContactoScreen() {
     var nombre by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
     var enviado by remember { mutableStateOf(false) }
+    var enviando by remember { mutableStateOf(false) }
+
+    LaunchedEffect(enviando) {
+        if (enviando) {
+            kotlinx.coroutines.delay(2000)
+            enviando = false
+            enviado = true
+        }
+    }
 
     FondoHuellas {
         Column(
@@ -224,14 +276,24 @@ fun ContactoScreen() {
             }
 
             Button(
-                onClick = { enviado = true },
+                onClick = { if (!enviado && !enviando) enviando = true },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(14.dp),
-                enabled = nombre.isNotEmpty() && mensaje.isNotEmpty()
+                enabled = nombre.isNotEmpty() && mensaje.isNotEmpty() && !enviando && !enviado
             ) {
-                Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Enviar mensaje", fontWeight = FontWeight.Bold)
+                if (enviando) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Enviando...", fontWeight = FontWeight.Bold)
+                } else {
+                    Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Enviar mensaje", fontWeight = FontWeight.Bold)
+                }
             }
 
             HorizontalDivider(
@@ -241,8 +303,11 @@ fun ContactoScreen() {
 
             // Info de contacto
             Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(14.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -260,7 +325,8 @@ fun ContactoScreen() {
                         Text(
                             "contacto@appdoptarchile.cl",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -274,7 +340,8 @@ fun ContactoScreen() {
                         Text(
                             "@appdoptarchile",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }

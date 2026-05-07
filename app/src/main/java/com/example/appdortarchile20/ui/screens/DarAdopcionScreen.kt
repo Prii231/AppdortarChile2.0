@@ -44,13 +44,27 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
 
     var intentado by remember { mutableStateOf(false) }
 
-    val errorNombre = if (intentado && name.isEmpty()) "El nombre es obligatorio" else null
+    val errorNombre = if (intentado) when {
+        name.isEmpty() -> "El nombre es obligatorio"
+        name.trim().length < 2 -> "Mínimo 2 caracteres"
+        else -> null
+    } else null
+    val errorEdad = if (intentado) when {
+        age.isEmpty() -> "La edad es obligatoria"
+        else -> null
+    } else null
+    val errorCiudad = if (intentado) when {
+        city.isEmpty() -> "La ciudad es obligatoria"
+        city.trim().length < 2 -> "Ingresa una ciudad válida"
+        else -> null
+    } else null
     val errorRegion = if (intentado && selectedRegion.isEmpty()) "Selecciona una región" else null
     val errorFoto = if (intentado && imageUri == null) "La foto es obligatoria" else null
     val errorDescripcion = if (intentado && description.isEmpty()) "Agrega una descripción" else null
 
-    val formularioValido = name.isNotEmpty() && selectedRegion.isNotEmpty() &&
-            imageUri != null && description.isNotEmpty()
+    val formularioValido = name.isNotEmpty() && name.trim().length >= 2 &&
+            age.isNotEmpty() && city.isNotEmpty() && city.trim().length >= 2 &&
+            selectedRegion.isNotEmpty() && imageUri != null && description.isNotEmpty()
 
     val currentUser by viewModel.currentUser.collectAsState()
     var expandedRegion by remember { mutableStateOf(false) }
@@ -119,7 +133,10 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
             // --- DATOS BÁSICOS ---
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
+                onValueChange = { input ->
+                    // Solo letras (incluyendo tildes), espacios
+                    name = input.filter { it.isLetter() || it.isWhitespace() }
+                },
                 label = { Text("Nombre de la mascota") },
                 leadingIcon = {
                     Icon(Icons.Default.Pets, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
@@ -169,8 +186,13 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
 
             OutlinedTextField(
                 value = age,
-                onValueChange = { age = it },
-                label = { Text("Edad (ej: 2 años)") },
+                onValueChange = { input ->
+                    // Solo números, máximo 2 dígitos
+                    age = input.filter { it.isDigit() }.take(2)
+                },
+                label = { Text("Edad en años (ej: 3)") },
+                isError = errorEdad != null,
+                supportingText = { if (errorEdad != null) Text(errorEdad, color = MaterialTheme.colorScheme.error) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp)
             )
@@ -206,8 +228,12 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
 
             OutlinedTextField(
                 value = city,
-                onValueChange = { city = it },
-                label = { Text("Ciudad/Comuna") },
+                onValueChange = { input ->
+                    city = input.filter { it.isLetter() || it.isWhitespace() }
+                },
+                label = { Text("Ciudad") },
+                isError = errorCiudad != null,
+                supportingText = { if (errorCiudad != null) Text(errorCiudad, color = MaterialTheme.colorScheme.error) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp)
             )

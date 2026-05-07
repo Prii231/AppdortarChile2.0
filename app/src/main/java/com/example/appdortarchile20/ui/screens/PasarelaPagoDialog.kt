@@ -355,9 +355,6 @@ fun PasarelaPagoDialog(
                             Button(
                                 onClick = {
                                     procesando = true
-                                    // Simular procesamiento (delay visual)
-                                    paso = 3
-                                    onPagoExitoso(montoFinal)
                                 },
                                 modifier = Modifier.weight(2f).height(52.dp),
                                 shape = RoundedCornerShape(14.dp),
@@ -365,10 +362,21 @@ fun PasarelaPagoDialog(
                             ) {
                                 if (procesando) {
                                     CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("Procesando...", fontWeight = FontWeight.Bold)
                                 } else {
                                     Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(Modifier.width(8.dp))
                                     Text("Pagar ahora", fontWeight = FontWeight.Bold)
+                                }
+                            }
+
+                            // Delay de 2 segundos antes de mostrar éxito
+                            LaunchedEffect(procesando) {
+                                if (procesando) {
+                                    kotlinx.coroutines.delay(2000)
+                                    paso = 3
+                                    onPagoExitoso(montoFinal)
                                 }
                             }
                         }
