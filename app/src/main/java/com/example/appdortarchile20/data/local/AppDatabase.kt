@@ -86,7 +86,7 @@ interface AppDao {
 
 @Database(
     entities = [User::class, Pet::class, UrgenciaReporte::class, Mensaje::class, Evaluacion::class],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

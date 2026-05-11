@@ -21,8 +21,7 @@ object ChileData {
         "Magallanes"
     )
 
-    // Opcional: Si en el futuro quieres volver a usar comunas,
-    // podrías mapearlas aquí por región.
+
     val comunasSantiago = listOf(
         "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central",
         "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja",
