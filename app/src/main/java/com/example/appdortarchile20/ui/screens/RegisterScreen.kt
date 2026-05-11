@@ -3,12 +3,15 @@ package com.example.appdortarchile20.ui.screens
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,42 +55,49 @@ private fun validarTelefono(telefono: String): String? {
     return null
 }
 
-private fun validarEdad(edad: String): String? {
-    if (edad.isEmpty()) return null
-    val num = edad.toIntOrNull() ?: return "Ingresa solo números"
-    if (num < 1 || num > 120) return "Ingresa una edad válida (1-120)"
-    return null
+private fun calcularEdad(fechaNacimiento: Long): Int {
+    val hoy = java.util.Calendar.getInstance()
+    val nacimiento = java.util.Calendar.getInstance().apply { timeInMillis = fechaNacimiento }
+    var edad = hoy.get(java.util.Calendar.YEAR) - nacimiento.get(java.util.Calendar.YEAR)
+    if (hoy.get(java.util.Calendar.DAY_OF_YEAR) < nacimiento.get(java.util.Calendar.DAY_OF_YEAR)) edad--
+    return edad
 }
 
-// Colores para campos sobre fondo azul
-private val campoColores @Composable get() = OutlinedTextFieldDefaults.colors(
-    unfocusedTextColor = Color.White,
-    focusedTextColor = Color.White,
-    unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-    focusedBorderColor = Color.White,
-    cursorColor = Color.White,
-    unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-    focusedLabelColor = Color.White,
-    unfocusedLeadingIconColor = Color.White.copy(alpha = 0.7f),
-    focusedLeadingIconColor = Color.White,
-    unfocusedTrailingIconColor = Color.White.copy(alpha = 0.7f),
-    focusedTrailingIconColor = Color.White,
-    unfocusedPlaceholderColor = Color.White.copy(alpha = 0.5f),
-    focusedPlaceholderColor = Color.White.copy(alpha = 0.7f),
-    errorBorderColor = Color(0xFFFFCDD2),
-    errorLabelColor = Color(0xFFFFCDD2),
-    errorTextColor = Color.White,
-    errorCursorColor = Color(0xFFFFCDD2),
-    errorLeadingIconColor = Color(0xFFFFCDD2)
-)
+private fun formatearFecha(timestamp: Long): String {
+    val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+    return sdf.format(java.util.Date(timestamp))
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+
+    // Colores para campos sobre fondo azul — definidos dentro del composable
+    val campoColores = OutlinedTextFieldDefaults.colors(
+        unfocusedTextColor = Color.White,
+        focusedTextColor = Color.White,
+        unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
+        focusedBorderColor = Color.White,
+        cursorColor = Color.White,
+        unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+        focusedLabelColor = Color.White,
+        unfocusedLeadingIconColor = Color.White.copy(alpha = 0.7f),
+        focusedLeadingIconColor = Color.White,
+        unfocusedTrailingIconColor = Color.White.copy(alpha = 0.7f),
+        focusedTrailingIconColor = Color.White,
+        unfocusedPlaceholderColor = Color.White.copy(alpha = 0.5f),
+        focusedPlaceholderColor = Color.White.copy(alpha = 0.7f),
+        errorBorderColor = Color(0xFFFFCDD2),
+        errorLabelColor = Color(0xFFFFCDD2),
+        errorTextColor = Color.White,
+        errorCursorColor = Color(0xFFFFCDD2),
+        errorLeadingIconColor = Color(0xFFFFCDD2)
+    )
     var selectedRegion by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
+    var fechaNacimiento by remember { mutableStateOf<Long?>(null) }
+    var showDatePicker by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
@@ -100,14 +110,14 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
 
     val errorNombre   = if (intentado) validarNombre(name) else null
     val errorTelefono = if (intentado) validarTelefono(phone) else null
-    val errorEdad     = if (intentado) validarEdad(age) else null
+    val errorFecha    = if (intentado && fechaNacimiento == null) "Selecciona tu fecha de nacimiento" else null
     val errorEmail    = if (intentado) validarEmail(email) else null
     val errorPassword = if (intentado) validarPassword(password) else null
     val errorRegion   = if (intentado && selectedRegion.isEmpty()) "Selecciona una región" else null
 
     val formularioValido = validarNombre(name) == null &&
             validarTelefono(phone) == null &&
-            validarEdad(age) == null &&
+            fechaNacimiento != null &&
             validarEmail(email) == null &&
             validarPassword(password) == null &&
             selectedRegion.isNotEmpty()
@@ -170,7 +180,9 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
                             Spacer(Modifier.width(4.dp))
                             Text("Chile",  fontSize = 20.sp, fontWeight = FontWeight.Black, color = Color(0xFF81C784))
                         }
-                        Text("Crea tu cuenta", fontSize = 13.sp, color = Color.White.copy(alpha = 0.8f))
+                        Text("Crea tu cuenta",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f))
                     }
                 }
 
@@ -238,20 +250,51 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
                     }
                 }
 
-                // Edad
+                // Fecha de nacimiento
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = fechaNacimiento,
+                    yearRange = 1920..java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) - 5
+                )
+                if (showDatePicker) {
+                    DatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                fechaNacimiento = datePickerState.selectedDateMillis
+                                showDatePicker = false
+                            }) { Text("Aceptar") }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
+                        }
+                    ) {
+                        DatePicker(state = datePickerState)
+                    }
+                }
+
                 OutlinedTextField(
-                    value = age,
-                    onValueChange = { age = it.filter { c -> c.isDigit() }.take(3) },
-                    label = { Text("Edad") },
-                    leadingIcon = { Icon(Icons.Default.Cake, contentDescription = null) },
-                    isError = errorEdad != null,
-                    supportingText = {
-                        if (errorEdad != null) Text(errorEdad, color = Color(0xFFFFCDD2))
+                    value = if (fechaNacimiento != null) {
+                        val edad = calcularEdad(fechaNacimiento!!)
+                        "${formatearFecha(fechaNacimiento!!)} ($edad años)"
+                    } else "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Fecha de nacimiento") },
+                    leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) },
+                    trailingIcon = {
+                        IconButton(onClick = { showDatePicker = true }) {
+                            Icon(Icons.Default.EditCalendar, contentDescription = "Seleccionar fecha",
+                                tint = Color.White)
+                        }
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    isError = errorFecha != null,
+                    supportingText = {
+                        if (errorFecha != null) Text(errorFecha, color = Color(0xFFFFCDD2))
+                        else if (fechaNacimiento == null) Text("Toca el ícono para seleccionar", color = Color.White.copy(alpha = 0.6f))
+                    },
+                    modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
                     shape = RoundedCornerShape(14.dp),
-                    colors = campoColores,
-                    singleLine = true
+                    colors = campoColores
                 )
 
                 // Email
@@ -315,7 +358,7 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
                                     name = name.trim(),
                                     phone = "+569${phone.trim()}",
                                     region = selectedRegion,
-                                    age = age.toIntOrNull() ?: 0,
+                                    age = if (fechaNacimiento != null) calcularEdad(fechaNacimiento!!) else 0,
                                     email = email.trim(),
                                     password = password
                                 )

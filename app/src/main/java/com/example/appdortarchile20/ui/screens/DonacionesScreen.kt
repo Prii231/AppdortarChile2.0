@@ -33,12 +33,10 @@ val campaniasMVP = listOf(
 )
 
 @Composable
-fun DonacionesScreen() {
-    // Campaña seleccionada para abrir la pasarela
+fun DonacionesScreen(viewModel: com.example.appdortarchile20.ui.viewmodel.PetViewModel? = null) {
     var campaniaSeleccionada by remember { mutableStateOf<Campania?>(null) }
-
-    // Montos recaudados actualizables en sesión
-    val montosRecaudados = remember { mutableStateMapOf<Int, Int>().apply { campaniasMVP.forEach { put(it.id, it.montoRecaudado) } } }
+    val montosRecaudados by (viewModel?.montosRecaudados
+        ?: kotlinx.coroutines.flow.MutableStateFlow<Map<Int,Int>>(emptyMap())).collectAsState()
 
     if (campaniaSeleccionada != null) {
         PasarelaPagoDialog(
@@ -46,8 +44,9 @@ fun DonacionesScreen() {
             onDismiss = { campaniaSeleccionada = null },
             onPagoExitoso = { monto ->
                 val id = campaniaSeleccionada!!.id
-                montosRecaudados[id] = (montosRecaudados[id] ?: 0) + monto
-            }
+                viewModel?.agregarDonacion(id, monto)
+            },
+            viewModel = viewModel
         )
     }
 
@@ -69,7 +68,8 @@ fun DonacionesScreen() {
             }
 
             items(campaniasMVP) { campania ->
-                val recaudado = montosRecaudados[campania.id] ?: campania.montoRecaudado
+                val donacionesAdicionales = montosRecaudados[campania.id] ?: 0
+                val recaudado = campania.montoRecaudado + donacionesAdicionales
                 CampaniaCard(
                     campania = campania.copy(montoRecaudado = recaudado),
                     onDonar = { campaniaSeleccionada = campania }

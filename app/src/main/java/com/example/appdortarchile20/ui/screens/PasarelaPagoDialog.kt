@@ -48,9 +48,10 @@ private fun tipoTarjeta(numero: String): String {
 fun PasarelaPagoDialog(
     campania: Campania,
     onDismiss: () -> Unit,
-    onPagoExitoso: (monto: Int) -> Unit
+    onPagoExitoso: (monto: Int) -> Unit,
+    viewModel: com.example.appdortarchile20.ui.viewmodel.PetViewModel? = null
 ) {
-    var paso by remember { mutableStateOf(1) } // 1=monto, 2=tarjeta, 3=exito
+    var paso by remember { mutableStateOf(1) }
 
     // Paso 1 — monto
     var montoSeleccionado by remember { mutableStateOf(5000) }
@@ -63,11 +64,27 @@ fun PasarelaPagoDialog(
     var cvv by remember { mutableStateOf("") }
     var procesando by remember { mutableStateOf(false) }
 
+    // Tarjeta guardada
+    var tarjetaGuardada by remember { mutableStateOf<com.example.appdortarchile20.data.model.TarjetaGuardada?>(null) }
+    var usarTarjetaGuardada by remember { mutableStateOf(false) }
+    var pagoRegistrado by remember { mutableStateOf(false) }
+    var showGuardarDialog by remember { mutableStateOf(false) }
+
+    // Cargar tarjeta guardada al abrir
+    LaunchedEffect(Unit) {
+        tarjetaGuardada = viewModel?.getTarjetaGuardada()
+        if (tarjetaGuardada != null) {
+            usarTarjetaGuardada = true
+            numeroTarjeta = tarjetaGuardada!!.numeroCompleto
+        }
+    }
+
     val montoFinal = if (montoCustom.isNotEmpty()) montoCustom.toIntOrNull() ?: montoSeleccionado else montoSeleccionado
-    val tarjetaValida = nombreTitular.length >= 3 &&
-            numeroTarjeta.filter { it.isDigit() }.length == 16 &&
-            fechaExp.filter { it.isDigit() }.length == 4 &&
-            cvv.length >= 3
+    val tarjetaValida = (usarTarjetaGuardada && tarjetaGuardada != null) ||
+            (nombreTitular.length >= 3 &&
+                    numeroTarjeta.filter { it.isDigit() }.length == 16 &&
+                    fechaExp.filter { it.isDigit() }.length == 4 &&
+                    cvv.length >= 3)
 
     Dialog(
         onDismissRequest = { if (!procesando) onDismiss() },
@@ -263,69 +280,114 @@ fun PasarelaPagoDialog(
                             }
                         }
 
-                        // Campos
-                        OutlinedTextField(
-                            value = nombreTitular,
-                            onValueChange = { input ->
-                                // Solo letras y espacios, sin números ni caracteres especiales
-                                val filtrado = input.filter { it.isLetter() || it == ' ' }
-                                nombreTitular = filtrado.uppercase()
-                            },
-                            label = { Text("Nombre del titular") },
-                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(14.dp),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-                        )
-
-                        OutlinedTextField(
-                            value = formatearTarjeta(numeroTarjeta),
-                            onValueChange = { raw ->
-                                val digitos = raw.filter { it.isDigit() }.take(16)
-                                numeroTarjeta = digitos
-                            },
-                            label = { Text("Número de tarjeta") },
-                            leadingIcon = { Icon(Icons.Default.CreditCard, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                            trailingIcon = {
-                                val tipo = tipoTarjeta(numeroTarjeta)
-                                if (tipo.isNotEmpty()) {
-                                    Text(tipo, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 12.dp))
+                        // Banner tarjeta guardada
+                        if (tarjetaGuardada != null) {
+                            Surface(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Icon(Icons.Default.CreditCard, contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary)
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("${tarjetaGuardada!!.tipo} ${tarjetaGuardada!!.numeroEnmascarado}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.SemiBold)
+                                        Text("Tarjeta guardada",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    Switch(
+                                        checked = usarTarjetaGuardada,
+                                        onCheckedChange = { usar ->
+                                            usarTarjetaGuardada = usar
+                                            if (usar && tarjetaGuardada != null) {
+                                                numeroTarjeta = tarjetaGuardada!!.numeroCompleto
+                                                nombreTitular = tarjetaGuardada!!.tipo
+                                                fechaExp = "1299"
+                                                cvv = "000"
+                                            } else {
+                                                numeroTarjeta = ""
+                                                nombreTitular = ""
+                                                fechaExp = ""
+                                                cvv = ""
+                                            }
+                                        }
+                                    )
                                 }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(14.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true
-                        )
-
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            OutlinedTextField(
-                                value = formatearFecha(fechaExp),
-                                onValueChange = { raw ->
-                                    val digitos = raw.filter { c -> c.isDigit() }.take(4)
-                                    fechaExp = digitos
-                                },
-                                label = { Text("MM/AA") },
-                                placeholder = { Text("12/27") },
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(14.dp),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true
-                            )
-
-                            OutlinedTextField(
-                                value = cvv,
-                                onValueChange = { cvv = it.filter { c -> c.isDigit() }.take(4) },
-                                label = { Text("CVV") },
-                                trailingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp)) },
-                                visualTransformation = PasswordVisualTransformation(),
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(14.dp),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true
-                            )
+                            }
                         }
+
+                        // Campos solo visibles si NO usa tarjeta guardada
+                        if (!usarTarjetaGuardada) {
+                            OutlinedTextField(
+                                value = nombreTitular,
+                                onValueChange = { input ->
+                                    // Solo letras y espacios, sin números ni caracteres especiales
+                                    val filtrado = input.filter { it.isLetter() || it == ' ' }
+                                    nombreTitular = filtrado.uppercase()
+                                },
+                                label = { Text("Nombre del titular") },
+                                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                            )
+
+                            OutlinedTextField(
+                                value = formatearTarjeta(numeroTarjeta),
+                                onValueChange = { raw ->
+                                    val digitos = raw.filter { it.isDigit() }.take(16)
+                                    numeroTarjeta = digitos
+                                },
+                                label = { Text("Número de tarjeta") },
+                                leadingIcon = { Icon(Icons.Default.CreditCard, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                                trailingIcon = {
+                                    val tipo = tipoTarjeta(numeroTarjeta)
+                                    if (tipo.isNotEmpty()) {
+                                        Text(tipo, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 12.dp))
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true
+                            )
+
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                OutlinedTextField(
+                                    value = formatearFecha(fechaExp),
+                                    onValueChange = { raw ->
+                                        val digitos = raw.filter { c -> c.isDigit() }.take(4)
+                                        fechaExp = digitos
+                                    },
+                                    label = { Text("MM/AA") },
+                                    placeholder = { Text("12/27") },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(14.dp),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true
+                                )
+
+                                OutlinedTextField(
+                                    value = cvv,
+                                    onValueChange = { cvv = it.filter { c -> c.isDigit() }.take(4) },
+                                    label = { Text("CVV") },
+                                    trailingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp)) },
+                                    visualTransformation = PasswordVisualTransformation(),
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(14.dp),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true
+                                )
+                            }
+                        } // fin if (!usarTarjetaGuardada)
 
                         // Resumen monto
                         Surface(
@@ -376,7 +438,14 @@ fun PasarelaPagoDialog(
                                 if (procesando) {
                                     kotlinx.coroutines.delay(2000)
                                     paso = 3
-                                    onPagoExitoso(montoFinal)
+                                    if (tarjetaGuardada != null || viewModel == null) {
+                                        if (!pagoRegistrado) {
+                                            pagoRegistrado = true
+                                            onPagoExitoso(montoFinal)
+                                        }
+                                    } else {
+                                        showGuardarDialog = true
+                                    }
                                 }
                             }
                         }
@@ -451,7 +520,14 @@ fun PasarelaPagoDialog(
                         Spacer(Modifier.height(4.dp))
 
                         Button(
-                            onClick = onDismiss,
+                            onClick = {
+                                if (showGuardarDialog) return@Button
+                                if (!pagoRegistrado) {
+                                    pagoRegistrado = true
+                                    onPagoExitoso(montoFinal)
+                                }
+                                onDismiss()
+                            },
                             modifier = Modifier.fillMaxWidth().height(52.dp),
                             shape = RoundedCornerShape(14.dp)
                         ) {
@@ -461,6 +537,53 @@ fun PasarelaPagoDialog(
                 }
             }
         }
+    }
+
+    // Dialog guardar tarjeta — fuera del Dialog principal para que no se cierre
+    if (showGuardarDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showGuardarDialog = false
+                if (!pagoRegistrado) { pagoRegistrado = true; onPagoExitoso(montoFinal) }
+                onDismiss()
+            },
+            icon = {
+                Icon(Icons.Default.CreditCard, contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary)
+            },
+            title = { Text("¿Guardar tarjeta?", fontWeight = FontWeight.Bold) },
+            text = {
+                Text(
+                    "¿Quieres guardar los datos de tu tarjeta para pagar más rápido la próxima vez?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val tipoDetectado = when {
+                            numeroTarjeta.startsWith("4") -> "Visa"
+                            numeroTarjeta.startsWith("5") -> "Mastercard"
+                            numeroTarjeta.startsWith("3") -> "Amex"
+                            else -> "Tarjeta"
+                        }
+                        viewModel?.guardarTarjeta(numeroTarjeta, tipoDetectado)
+                        showGuardarDialog = false
+                        if (!pagoRegistrado) { pagoRegistrado = true; onPagoExitoso(montoFinal) }
+                        onDismiss()
+                    },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Guardar") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showGuardarDialog = false
+                    if (!pagoRegistrado) { pagoRegistrado = true; onPagoExitoso(montoFinal) }
+                    onDismiss()
+                }) { Text("No, gracias") }
+            }
+        )
     }
 }
 

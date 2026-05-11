@@ -82,11 +82,21 @@ interface AppDao {
 
     @Query("SELECT * FROM evaluaciones WHERE petId = :petId AND evaluadorEmail = :evaluadorEmail LIMIT 1")
     suspend fun getEvaluacionExistente(petId: Int, evaluadorEmail: String): Evaluacion?
+
+    // --- TARJETAS ---
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTarjeta(tarjeta: TarjetaGuardada)
+
+    @Query("SELECT * FROM tarjetas WHERE userEmail = :email ORDER BY timestamp DESC LIMIT 1")
+    suspend fun getTarjetaUsuario(email: String): TarjetaGuardada?
+
+    @Query("DELETE FROM tarjetas WHERE userEmail = :email")
+    suspend fun deleteTarjetasUsuario(email: String)
 }
 
 @Database(
-    entities = [User::class, Pet::class, UrgenciaReporte::class, Mensaje::class, Evaluacion::class],
-    version = 7,
+    entities = [User::class, Pet::class, UrgenciaReporte::class, Mensaje::class, Evaluacion::class, TarjetaGuardada::class],
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

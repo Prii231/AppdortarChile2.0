@@ -7,6 +7,7 @@ import com.example.appdortarchile20.data.local.AppDatabase
 import com.example.appdortarchile20.data.model.Evaluacion
 import com.example.appdortarchile20.data.model.Mensaje
 import com.example.appdortarchile20.data.model.Pet
+import com.example.appdortarchile20.data.model.TarjetaGuardada
 import com.example.appdortarchile20.data.model.UrgenciaReporte
 import com.example.appdortarchile20.data.model.User
 import kotlinx.coroutines.flow.flatMapLatest
@@ -169,5 +170,39 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         }
+    }
+
+    // --- DONACIONES ---
+    private val _montosRecaudados = MutableStateFlow<Map<Int, Int>>(emptyMap())
+    val montosRecaudados: StateFlow<Map<Int, Int>> = _montosRecaudados
+
+    fun agregarDonacion(campaniaId: Int, monto: Int) {
+        val actual = _montosRecaudados.value.toMutableMap()
+        actual[campaniaId] = (actual[campaniaId] ?: 0) + monto
+        _montosRecaudados.value = actual
+    }
+    suspend fun getTarjetaGuardada(): TarjetaGuardada? {
+        val email = _currentUser.value?.email ?: return null
+        return dao.getTarjetaUsuario(email)
+    }
+
+    fun guardarTarjeta(numero: String, tipo: String) {
+        val email = _currentUser.value?.email ?: return
+        val ultimos4 = numero.filter { it.isDigit() }.takeLast(4)
+        viewModelScope.launch {
+            dao.insertTarjeta(
+                TarjetaGuardada(
+                    userEmail = email,
+                    numeroEnmascarado = "**** **** **** $ultimos4",
+                    numeroCompleto = numero,
+                    tipo = tipo
+                )
+            )
+        }
+    }
+
+    fun eliminarTarjeta() {
+        val email = _currentUser.value?.email ?: return
+        viewModelScope.launch { dao.deleteTarjetasUsuario(email) }
     }
 }

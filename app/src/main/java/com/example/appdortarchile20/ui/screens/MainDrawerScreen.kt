@@ -323,7 +323,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                         "dar"        -> DarAdopcionScreen(viewModel, onSaved = { currentScreen = "adoptar" })
                         "blog"       -> BlogScreen()
                         "nosotros"   -> NosotrosScreen()
-                        "donaciones" -> DonacionesScreen()
+                        "donaciones" -> DonacionesScreen(viewModel = viewModel)
                         "perfil"     -> PerfilScreen(viewModel)
                         "chats"      -> {
                             if (chatDesdeDrawerPetId != null) {
