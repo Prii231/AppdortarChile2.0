@@ -1,5 +1,6 @@
 package com.example.appdortarchile20.ui.screens
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -9,20 +10,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddPhotoAlternate
-import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.example.appdortarchile20.data.ChileData
 import com.example.appdortarchile20.data.model.Pet
 import com.example.appdortarchile20.ui.viewmodel.PetViewModel
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,10 +39,35 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
     var isSterilized by remember { mutableStateOf(false) }
     var description by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var showFotoDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
-    val photoPickerLauncher = rememberLauncherForActivityResult(
+    // URI temporal para la foto de cámara
+    var cameraUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Lanzador de galería
+    val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> imageUri = uri }
+        onResult = { uri -> if (uri != null) imageUri = uri }
+    )
+
+    // Lanzador de cámara
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success -> if (success) imageUri = cameraUri }
+    )
+
+    // Permiso de cámara
+    val permisoCamaraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            if (granted) {
+                val file = File.createTempFile("foto_mascota_", ".jpg", context.cacheDir)
+                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+                cameraUri = uri
+                cameraLauncher.launch(uri)
+            }
+        }
     )
 
     var intentado by remember { mutableStateOf(false) }
@@ -66,6 +94,54 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
             age.isNotEmpty() && city.isNotEmpty() && city.trim().length >= 2 &&
             selectedRegion.isNotEmpty() && imageUri != null && description.isNotEmpty()
 
+    // Dialog para elegir entre cámara o galería
+    if (showFotoDialog) {
+        AlertDialog(
+            onDismissRequest = { showFotoDialog = false },
+            icon = { Icon(Icons.Default.AddPhotoAlternate, contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary) },
+            title = { Text("Agregar foto", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    // Opción cámara
+                    OutlinedButton(
+                        onClick = {
+                            showFotoDialog = false
+                            permisoCamaraLauncher.launch(android.Manifest.permission.CAMERA)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.CameraAlt, contentDescription = null,
+                            modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Tomar foto con cámara")
+                    }
+                    // Opción galería
+                    OutlinedButton(
+                        onClick = {
+                            showFotoDialog = false
+                            galleryLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.Photo, contentDescription = null,
+                            modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Elegir desde galería")
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showFotoDialog = false }) { Text("Cancelar") }
+            }
+        )
+    }
+
     val currentUser by viewModel.currentUser.collectAsState()
     var expandedRegion by remember { mutableStateOf(false) }
 
@@ -86,9 +162,7 @@ fun DarAdopcionScreen(viewModel: PetViewModel, onSaved: () -> Unit) {
             Card(
                 modifier = Modifier.fillMaxWidth().height(210.dp),
                 onClick = {
-                    photoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
+                    showFotoDialog = true
                 },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
