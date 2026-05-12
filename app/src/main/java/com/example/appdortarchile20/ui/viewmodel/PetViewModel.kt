@@ -82,10 +82,15 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deletePet(pet: Pet) {
-        viewModelScope.launch {
-            dao.deletePet(pet)
-        }
+        viewModelScope.launch { dao.marcarPetEliminada(pet.id) }
     }
+
+    fun restaurarPet(pet: Pet) {
+        viewModelScope.launch { dao.restaurarPet(pet.id) }
+    }
+
+    val petsEliminadas: StateFlow<List<Pet>> = dao.getPetsEliminadas()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun addReporte(reporte: UrgenciaReporte) {
         viewModelScope.launch {

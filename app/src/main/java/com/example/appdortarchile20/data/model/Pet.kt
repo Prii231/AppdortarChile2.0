@@ -8,15 +8,16 @@ data class Pet(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,
-    val type: String,          // Perro, Gato u Otro
-    val age: String,           // Edad aproximada
-    val region: String,        // Región de Chile
-    val city: String,          // Ciudad
-    val imageUrl: String,      // Link a la foto
-    val hasVaccines: Boolean,  // Si tiene o no vacunas
-    val isSterilized: Boolean, // Si está o no operado
-    val description: String,   // Descripción de la mascota
-    val ownerName: String,     // Nombre de quien da en adopción
-    val ownerPhone: String,    // Teléfono de contacto
-    val ownerEmail: String = ""// Email del dueño para identificarlo
+    val type: String,
+    val age: String,
+    val region: String,
+    val city: String,
+    val imageUrl: String,
+    val hasVaccines: Boolean,
+    val isSterilized: Boolean,
+    val description: String,
+    val ownerName: String,
+    val ownerPhone: String,
+    val ownerEmail: String = "",
+    val eliminado: Boolean = false  // Borrado
 )

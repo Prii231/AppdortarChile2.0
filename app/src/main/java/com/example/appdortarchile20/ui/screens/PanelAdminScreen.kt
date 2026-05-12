@@ -24,6 +24,7 @@ import com.example.appdortarchile20.ui.viewmodel.PetViewModel
 @Composable
 fun PanelAdminScreen(viewModel: PetViewModel) {
     val allPets by viewModel.allPets.collectAsState()
+    val petsEliminadas by viewModel.petsEliminadas.collectAsState()
     val allReportes by viewModel.allReportes.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }
     var petAEliminar by remember { mutableStateOf<Pet?>(null) }
@@ -98,25 +99,29 @@ fun PanelAdminScreen(viewModel: PetViewModel) {
             // Stats rápidas
             Row(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                StatCard("Mascotas", allPets.size.toString(),
+                StatCard("Activas", allPets.size.toString(),
                     Icons.Default.Pets, Modifier.weight(1f))
+                StatCard("Eliminadas", petsEliminadas.size.toString(),
+                    Icons.Default.Delete, Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.error)
                 StatCard("Urgencias", allReportes.size.toString(),
                     Icons.Default.Warning, Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.error)
+                    color = Color(0xFFF57C00))
             }
 
             // Tabs
             TabRow(selectedTabIndex = selectedTab) {
                 Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 },
                     text = { Text("Mascotas") },
-                    icon = { Icon(Icons.Default.Pets, contentDescription = null) }
-                )
+                    icon = { Icon(Icons.Default.Pets, contentDescription = null) })
                 Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 },
+                    text = { Text("Historial") },
+                    icon = { Icon(Icons.Default.History, contentDescription = null) })
+                Tab(selected = selectedTab == 2, onClick = { selectedTab = 2 },
                     text = { Text("Urgencias") },
-                    icon = { Icon(Icons.Default.Warning, contentDescription = null) }
-                )
+                    icon = { Icon(Icons.Default.Warning, contentDescription = null) })
             }
 
             when (selectedTab) {
@@ -136,6 +141,24 @@ fun PanelAdminScreen(viewModel: PetViewModel) {
                     }
                 }
                 1 -> {
+                    if (petsEliminadas.isEmpty()) {
+                        EmptyAdmin("No hay mascotas eliminadas")
+                    } else {
+                        LazyColumn(
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(petsEliminadas) { pet ->
+                                AdminPetEliminadaCard(
+                                    pet = pet,
+                                    onRestaurar = { viewModel.restaurarPet(pet) }
+                                )
+                            }
+                        }
+                    }
+                }
+                2 -> {
                     if (allReportes.isEmpty()) {
                         EmptyAdmin("No hay reportes de urgencia")
                     } else {
@@ -211,6 +234,50 @@ fun AdminPetCard(pet: Pet, onEliminar: () -> Unit) {
             IconButton(onClick = onEliminar) {
                 Icon(Icons.Default.Delete, contentDescription = "Eliminar",
                     tint = MaterialTheme.colorScheme.error)
+            }
+        }
+    }
+}
+
+@Composable
+fun AdminPetEliminadaCard(pet: Pet, onRestaurar: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+        ),
+        elevation = CardDefaults.cardElevation(1.dp)
+    ) {
+        Row(modifier = Modifier.padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            AsyncImage(model = pet.imageUrl, contentDescription = pet.name,
+                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(10.dp)),
+                contentScale = ContentScale.Crop)
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(pet.name, fontWeight = FontWeight.Bold)
+                    Surface(color = MaterialTheme.colorScheme.error,
+                        shape = RoundedCornerShape(20.dp)) {
+                        Text("Eliminada", style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                    }
+                }
+                Text("${pet.type} · ${pet.age}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Dueño: ${pet.ownerName}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            TextButton(onClick = onRestaurar) {
+                Icon(Icons.Default.RestoreFromTrash, contentDescription = null,
+                    modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("Restaurar")
             }
         }
     }

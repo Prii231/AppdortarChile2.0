@@ -21,8 +21,20 @@ interface AppDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addPet(pet: Pet)
 
-    @Query("SELECT * FROM pets")
+    @Query("SELECT * FROM pets WHERE eliminado = 0")
     fun getAllPets(): Flow<List<Pet>>
+
+    @Query("SELECT * FROM pets WHERE eliminado = 1")
+    fun getPetsEliminadas(): Flow<List<Pet>>
+
+    @Query("SELECT * FROM pets")
+    fun getAllPetsHistorial(): Flow<List<Pet>>
+
+    @Query("UPDATE pets SET eliminado = 1 WHERE id = :id")
+    suspend fun marcarPetEliminada(id: Int)
+
+    @Query("UPDATE pets SET eliminado = 0 WHERE id = :id")
+    suspend fun restaurarPet(id: Int)
 
     @Delete
     suspend fun deletePet(pet: Pet)
@@ -96,7 +108,7 @@ interface AppDao {
 
 @Database(
     entities = [User::class, Pet::class, UrgenciaReporte::class, Mensaje::class, Evaluacion::class, TarjetaGuardada::class],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
