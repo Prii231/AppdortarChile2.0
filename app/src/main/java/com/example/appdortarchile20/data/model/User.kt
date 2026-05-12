@@ -13,5 +13,6 @@ data class User(
     val region: String,
     val age: Int,
     val email: String,
-    val password: String
+    val password: String,
+    val isAdmin: Boolean = false
 )

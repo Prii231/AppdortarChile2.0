@@ -120,6 +120,33 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Panel Admin — solo visible para administradores
+                if (currentUser?.isAdmin == true) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp).fillMaxWidth()
+                    ) {
+                        Text("ADMINISTRADOR",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+                    }
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.AdminPanelSettings, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error) },
+                        label = { Text("Panel Admin", fontWeight = FontWeight.SemiBold) },
+                        selected = currentScreen == "admin",
+                        onClick = { currentScreen = "admin"; scope.launch { drawerState.close() } },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = MaterialTheme.colorScheme.errorContainer
+                        ),
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
+
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = naranjaPrincipal) },
                     label = { Text("Mi Perfil", fontWeight = FontWeight.SemiBold) },
@@ -288,6 +315,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                                     "donaciones" -> "Campañas de Donación"
                                     "perfil"     -> "Mi Perfil"
                                     "chats"      -> "Mis Chats"
+                                    "admin"      -> "Panel Admin"
                                     else         -> "Contacto"
                                 },
                                 fontWeight = FontWeight.Bold
@@ -325,6 +353,7 @@ fun MainDrawerScreen(viewModel: PetViewModel, onLogout: () -> Unit) {
                         "nosotros"   -> NosotrosScreen()
                         "donaciones" -> DonacionesScreen(viewModel = viewModel)
                         "perfil"     -> PerfilScreen(viewModel)
+                        "admin"      -> PanelAdminScreen(viewModel)
                         "chats"      -> {
                             if (chatDesdeDrawerPetId != null) {
                                 ChatScreen(

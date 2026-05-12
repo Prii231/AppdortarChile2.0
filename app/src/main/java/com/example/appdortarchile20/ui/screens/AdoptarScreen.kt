@@ -316,7 +316,7 @@ fun AdoptarScreen(viewModel: PetViewModel) {
                                                 )
                                             }
                                         }
-                                        if (currentUser != null && pet.ownerEmail == currentUser!!.email) {
+                                        if (currentUser != null && (pet.ownerEmail == currentUser!!.email || currentUser!!.isAdmin)) {
                                             IconButton(onClick = { petAEliminar = pet }) {
                                                 Icon(
                                                     Icons.Default.Delete,

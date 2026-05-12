@@ -108,6 +108,21 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
     // Datos iniciales de ejemplo con REGIONES de Chile
     fun insertDummyData() {
         viewModelScope.launch {
+            // Crear usuario admin si no existe
+            if (dao.getUserByEmail("admin@appdoptar.cl") == null) {
+                dao.registerUser(
+                    User(
+                        id = 0,
+                        name = "Administrador",
+                        phone = "+56900000000",
+                        region = "Metropolitana",
+                        age = 30,
+                        email = "admin@appdoptar.cl",
+                        password = "admin123",
+                        isAdmin = true
+                    )
+                )
+            }
             if (allPets.value.isEmpty()) {
                 val dummyPets = listOf(
                     Pet(1, "Firulais", "Perro", "2 años", "Metropolitana", "Santiago",
