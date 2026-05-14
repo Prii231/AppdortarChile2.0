@@ -14,7 +14,8 @@ data class UrgenciaReporte(
     val longitud: Double = 0.0,
     val horaReporte: Long = System.currentTimeMillis(),
     val imagenUrl: String? = null,
-    val resuelta: Boolean = false
+    val resuelta: Boolean = false,
+    val reportadoPor: String = "" // FK → users.email
 )
 
 enum class TipoUrgencia(val descripcion: String, val colorHex: Long) {

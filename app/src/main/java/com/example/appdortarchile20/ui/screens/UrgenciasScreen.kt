@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocation
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -60,9 +61,13 @@ fun createResueltaBitmap(): Bitmap {
 @Composable
 fun UrgenciasScreen(viewModel: PetViewModel) {
     val reportes by viewModel.allReportes.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     var reporteSeleccionado by remember { mutableStateOf<UrgenciaReporte?>(null) }
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+    var chatReporteId by remember { mutableStateOf<Int?>(null) }
+    var chatOwnerEmail by remember { mutableStateOf("") }
+    var chatTituloAlerta by remember { mutableStateOf("") }
 
     // Actualizar marcadores cuando cambian los reportes
     LaunchedEffect(reportes) {
@@ -97,8 +102,22 @@ fun UrgenciasScreen(viewModel: PetViewModel) {
     if (showDialog) {
         CrearAlertaDialog(
             onDismiss = { showDialog = false },
-            onConfirm = { reporte -> viewModel.addReporte(reporte) }
+            onConfirm = { reporte -> viewModel.addReporte(reporte) },
+            userEmail = currentUser?.email ?: ""
         )
+    }
+
+    if (chatReporteId != null) {
+        ChatScreen(
+            petId = chatReporteId!!,
+            petNombre = "🚨 $chatTituloAlerta",
+            otroUsuarioEmail = chatOwnerEmail,
+            otroUsuarioNombre = chatOwnerEmail,
+            viewModel = viewModel,
+            onBack = { chatReporteId = null },
+            esUrgencia = true
+        )
+        return
     }
 
     // Dialog de detalle del reporte al tocar un pin
@@ -107,6 +126,9 @@ fun UrgenciasScreen(viewModel: PetViewModel) {
         val tipo = TipoUrgencia.entries.find { it.name == reporte.tipo } ?: TipoUrgencia.EXTRAVIADO
         val fecha = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             .format(Date(reporte.horaReporte))
+        val esCreador = currentUser?.email == reporte.reportadoPor
+        val esAdmin = currentUser?.isAdmin == true
+        val esTercero = !esCreador && currentUser?.email != null
 
         AlertDialog(
             onDismissRequest = { reporteSeleccionado = null },
@@ -143,27 +165,58 @@ fun UrgenciasScreen(viewModel: PetViewModel) {
                     Text("Reportado el $fecha",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            },
-            confirmButton = {
-                if (!reporte.resuelta) {
-                    Button(
-                        onClick = {
-                            viewModel.marcarResuelta(reporte.id)
-                            reporteSeleccionado = null
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null,
-                            modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Marcar como resuelta")
+                    if (reporte.reportadoPor.isNotEmpty()) {
+                        Text("Por: ${reporte.reportadoPor}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+
+                    Spacer(Modifier.height(4.dp))
+
+                    // Botón chat — solo si es tercero
+                    if (esTercero && reporte.reportadoPor.isNotEmpty()) {
+                        Button(
+                            onClick = {
+                                chatReporteId = -reporte.id
+                                chatOwnerEmail = reporte.reportadoPor
+                                chatTituloAlerta = reporte.titulo
+                                reporteSeleccionado = null
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Icon(Icons.Default.Chat, contentDescription = null,
+                                modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Contactar al creador")
+                        }
+                    }
+
+                    // Botón marcar resuelta — solo creador o admin
+                    if (!reporte.resuelta && (esCreador || esAdmin)) {
+                        Button(
+                            onClick = {
+                                viewModel.marcarResuelta(reporte.id)
+                                reporteSeleccionado = null
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null,
+                                modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Marcar como resuelta")
+                        }
                     }
                 }
             },
+            confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { reporteSeleccionado = null }) {
                     Text("Cerrar")

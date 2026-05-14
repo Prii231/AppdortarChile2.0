@@ -72,7 +72,10 @@ fun MisChatsScreen(
                 items(conversaciones) { ultimoMsg ->
                     val esMio = ultimoMsg.remitenteEmail == currentUser?.email
                     val otroEmail = if (esMio) ultimoMsg.destinatarioEmail else ultimoMsg.remitenteEmail
-                    val pet = allPets.find { it.id == ultimoMsg.petId }
+                    val esUrgencia = ultimoMsg.petId < 0
+                    val pet = if (esUrgencia) null else allPets.find { it.id == ultimoMsg.petId }
+                    val titulo = if (esUrgencia) "🚨 Urgencia #${-ultimoMsg.petId}"
+                    else pet?.name ?: "Conversación"
                     val hora = SimpleDateFormat("HH:mm", Locale.getDefault())
                         .format(Date(ultimoMsg.timestamp))
 
@@ -81,7 +84,7 @@ fun MisChatsScreen(
                             onAbrirChat(
                                 ultimoMsg.petId,
                                 otroEmail,
-                                pet?.ownerName ?: otroEmail
+                                otroEmail
                             )
                         },
                         shape = RoundedCornerShape(14.dp),
@@ -94,20 +97,23 @@ fun MisChatsScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Surface(shape = CircleShape,
-                                color = MaterialTheme.colorScheme.primaryContainer,
+                                color = if (esUrgencia) MaterialTheme.colorScheme.errorContainer
+                                else MaterialTheme.colorScheme.primaryContainer,
                                 modifier = Modifier.size(48.dp)) {
                                 Box(contentAlignment = Alignment.Center,
                                     modifier = Modifier.fillMaxSize()) {
-                                    Text(otroEmail.firstOrNull()?.uppercase() ?: "?",
+                                    Text(
+                                        if (esUrgencia) "🚨" else otroEmail.firstOrNull()?.uppercase() ?: "?",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary)
+                                        color = if (esUrgencia) MaterialTheme.colorScheme.error
+                                        else MaterialTheme.colorScheme.primary)
                                 }
                             }
                             Column(modifier = Modifier.weight(1f)) {
                                 Row(modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(pet?.name ?: "Mascota #${ultimoMsg.petId}",
+                                    Text(titulo,
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.SemiBold)
                                     Text(hora, style = MaterialTheme.typography.labelSmall,

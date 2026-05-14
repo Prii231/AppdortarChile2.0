@@ -36,9 +36,21 @@ fun ChatScreen(
     otroUsuarioNombre: String,
     viewModel: PetViewModel,
     onBack: () -> Unit,
-    pet: Pet? = null
+    pet: Pet? = null,
+    esUrgencia: Boolean = false
 ) {
     val currentUser by viewModel.currentUser.collectAsState()
+    var nombreOtroUsuario by remember { mutableStateOf("") }
+    var tituloChat by remember { mutableStateOf(petNombre) }
+
+    LaunchedEffect(otroUsuarioEmail, petId) {
+        nombreOtroUsuario = viewModel.getNombreUsuario(otroUsuarioEmail)
+        // Si es urgencia (petId negativo), cargar el título del reporte
+        if (petId < 0) {
+            val titulo = viewModel.getTituloReporte(petId)
+            if (titulo.isNotEmpty()) tituloChat = "🚨 $titulo"
+        }
+    }
 
     // Fix parpadeo: remember estabiliza el StateFlow
     val mensajes by remember(petId, currentUser?.email, otroUsuarioEmail) {
@@ -58,7 +70,7 @@ fun ChatScreen(
 
     if (showEvaluacionDialog) {
         EvaluacionDialog(
-            nombreEvaluado = otroUsuarioNombre,
+            nombreEvaluado = nombreOtroUsuario,
             onDismiss = { showEvaluacionDialog = false },
             onConfirm = { estrellas, comentario ->
                 viewModel.enviarEvaluacion(petId, otroUsuarioEmail, estrellas, comentario)
@@ -167,7 +179,7 @@ fun ChatScreen(
                             Box(contentAlignment = Alignment.Center,
                                 modifier = Modifier.fillMaxSize()) {
                                 Text(
-                                    otroUsuarioNombre.firstOrNull()?.uppercase() ?: "?",
+                                    nombreOtroUsuario.firstOrNull()?.uppercase() ?: "?",
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
                                     fontSize = 16.sp
@@ -175,11 +187,11 @@ fun ChatScreen(
                             }
                         }
                         Column {
-                            Text(petNombre,
+                            Text(tituloChat,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White)
-                            Text("Con $otroUsuarioNombre",
+                            Text("Con $nombreOtroUsuario",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.White.copy(alpha = 0.8f))
                         }
@@ -249,11 +261,16 @@ fun ChatScreen(
                     Text("¡Inicia la conversación!",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Pregunta sobre $petNombre y coordina la adopción.",
+                    Text(
+                        if (esUrgencia)
+                            "Coordina el rescate o ayuda con $nombreOtroUsuario."
+                        else
+                            "Pregunta sobre $tituloChat y coordina la adopción.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 32.dp))
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    )
                 }
             }
         } else {

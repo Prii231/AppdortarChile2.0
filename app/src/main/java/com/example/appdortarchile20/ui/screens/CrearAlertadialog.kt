@@ -27,7 +27,8 @@ import com.google.android.gms.location.Priority
 @Composable
 fun CrearAlertaDialog(
     onDismiss: () -> Unit,
-    onConfirm: (UrgenciaReporte) -> Unit
+    onConfirm: (UrgenciaReporte) -> Unit,
+    userEmail: String = ""
 ) {
     val context = LocalContext.current
     var titulo by remember { mutableStateOf("") }
@@ -197,7 +198,8 @@ fun CrearAlertaDialog(
                         descripcion = descripcion,
                         tipo = tipoSeleccionado.name,
                         latitud = latitud ?: -33.4489,
-                        longitud = longitud ?: -70.6693
+                        longitud = longitud ?: -70.6693,
+                        reportadoPor = userEmail
                     )
                     onConfirm(reporte)
                     onDismiss()

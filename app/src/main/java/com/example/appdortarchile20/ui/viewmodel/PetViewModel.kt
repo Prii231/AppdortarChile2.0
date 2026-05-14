@@ -201,7 +201,13 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- DONACIONES ---
+    suspend fun getNombreUsuario(email: String): String {
+        return dao.getUserByEmail(email)?.name ?: email
+    }
+
+    suspend fun getTituloReporte(reporteId: Int): String {
+        return dao.getReporteById(-reporteId)?.titulo ?: ""
+    }
     private val _montosRecaudados = MutableStateFlow<Map<Int, Int>>(emptyMap())
     val montosRecaudados: StateFlow<Map<Int, Int>> = _montosRecaudados
 

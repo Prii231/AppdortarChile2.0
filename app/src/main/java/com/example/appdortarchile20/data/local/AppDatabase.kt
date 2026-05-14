@@ -49,6 +49,9 @@ interface AppDao {
     @Delete
     suspend fun deleteReporte(reporte: UrgenciaReporte)
 
+    @Query("SELECT * FROM urgencias WHERE id = :id LIMIT 1")
+    suspend fun getReporteById(id: Int): UrgenciaReporte?
+
     @Query("UPDATE urgencias SET resuelta = 1 WHERE id = :id")
     suspend fun marcarResuelta(id: Int)
 
@@ -108,7 +111,7 @@ interface AppDao {
 
 @Database(
     entities = [User::class, Pet::class, UrgenciaReporte::class, Mensaje::class, Evaluacion::class, TarjetaGuardada::class],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
