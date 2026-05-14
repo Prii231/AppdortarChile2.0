@@ -110,7 +110,11 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
 
     val errorNombre   = if (intentado) validarNombre(name) else null
     val errorTelefono = if (intentado) validarTelefono(phone) else null
-    val errorFecha    = if (intentado && fechaNacimiento == null) "Selecciona tu fecha de nacimiento" else null
+    val errorFecha = if (intentado) when {
+        fechaNacimiento == null -> "Selecciona tu fecha de nacimiento"
+        calcularEdad(fechaNacimiento!!) < 18 -> "Debes tener al menos 18 años para registrarte"
+        else -> null
+    } else null
     val errorEmail    = if (intentado) validarEmail(email) else null
     val errorPassword = if (intentado) validarPassword(password) else null
     val errorRegion   = if (intentado && selectedRegion.isEmpty()) "Selecciona una región" else null
@@ -118,6 +122,7 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
     val formularioValido = validarNombre(name) == null &&
             validarTelefono(phone) == null &&
             fechaNacimiento != null &&
+            calcularEdad(fechaNacimiento!!) >= 18 &&
             validarEmail(email) == null &&
             validarPassword(password) == null &&
             selectedRegion.isNotEmpty()
@@ -253,7 +258,7 @@ fun RegisterScreen(viewModel: PetViewModel, onRegistered: () -> Unit) {
                 // Fecha de nacimiento
                 val datePickerState = rememberDatePickerState(
                     initialSelectedDateMillis = fechaNacimiento,
-                    yearRange = 1920..java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) - 5
+                    yearRange = 1920..java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) - 18
                 )
                 if (showDatePicker) {
                     DatePickerDialog(
