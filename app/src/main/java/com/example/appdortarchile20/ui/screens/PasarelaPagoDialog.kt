@@ -69,6 +69,8 @@ fun PasarelaPagoDialog(
     var usarTarjetaGuardada by remember { mutableStateOf(false) }
     var pagoRegistrado by remember { mutableStateOf(false) }
     var showGuardarDialog by remember { mutableStateOf(false) }
+    var showReemplazarDialog by remember { mutableStateOf(false) }
+    var showEliminarDialog by remember { mutableStateOf(false) }
 
     // Cargar tarjeta guardada al abrir
     LaunchedEffect(Unit) {
@@ -282,6 +284,36 @@ fun PasarelaPagoDialog(
 
                         // Banner tarjeta guardada
                         if (tarjetaGuardada != null) {
+
+                            // Dialog confirmar eliminar tarjeta
+                            if (showEliminarDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showEliminarDialog = false },
+                                    icon = { Icon(Icons.Default.Delete, contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error) },
+                                    title = { Text("¿Eliminar tarjeta guardada?", fontWeight = FontWeight.Bold) },
+                                    text = { Text("Se eliminará ${tarjetaGuardada!!.tipo} ${tarjetaGuardada!!.numeroEnmascarado}. Tendrás que ingresar los datos manualmente al próximo pago.") },
+                                    confirmButton = {
+                                        Button(
+                                            onClick = {
+                                                viewModel?.eliminarTarjeta()
+                                                tarjetaGuardada = null
+                                                usarTarjetaGuardada = false
+                                                numeroTarjeta = ""
+                                                nombreTitular = ""
+                                                fechaExp = ""
+                                                cvv = ""
+                                                showEliminarDialog = false
+                                            },
+                                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                                        ) { Text("Eliminar") }
+                                    },
+                                    dismissButton = {
+                                        TextButton(onClick = { showEliminarDialog = false }) { Text("Cancelar") }
+                                    }
+                                )
+                            }
+
                             Surface(
                                 color = MaterialTheme.colorScheme.primaryContainer,
                                 shape = RoundedCornerShape(12.dp),
@@ -301,6 +333,12 @@ fun PasarelaPagoDialog(
                                         Text("Tarjeta guardada",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    // Botón eliminar tarjeta
+                                    IconButton(onClick = { showEliminarDialog = true }) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Eliminar tarjeta",
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(20.dp))
                                     }
                                     Switch(
                                         checked = usarTarjetaGuardada,
@@ -438,13 +476,19 @@ fun PasarelaPagoDialog(
                                 if (procesando) {
                                     kotlinx.coroutines.delay(2000)
                                     paso = 3
-                                    if (tarjetaGuardada != null || viewModel == null) {
-                                        if (!pagoRegistrado) {
-                                            pagoRegistrado = true
-                                            onPagoExitoso(montoFinal)
+                                    if (!pagoRegistrado) {
+                                        pagoRegistrado = true
+                                        onPagoExitoso(montoFinal)
+                                    }
+                                    // Si pagó con tarjeta NUEVA (no usó la guardada)
+                                    if (!usarTarjetaGuardada && viewModel != null) {
+                                        if (tarjetaGuardada != null) {
+                                            // Ya hay una tarjeta — preguntar si reemplazar
+                                            showReemplazarDialog = true
+                                        } else {
+                                            // No hay tarjeta — preguntar si guardar
+                                            showGuardarDialog = true
                                         }
-                                    } else {
-                                        showGuardarDialog = true
                                     }
                                 }
                             }
@@ -582,6 +626,48 @@ fun PasarelaPagoDialog(
                     if (!pagoRegistrado) { pagoRegistrado = true; onPagoExitoso(montoFinal) }
                     onDismiss()
                 }) { Text("No, gracias") }
+            }
+        )
+    }
+
+    // Dialog reemplazar tarjeta guardada
+    if (showReemplazarDialog) {
+        AlertDialog(
+            onDismissRequest = { showReemplazarDialog = false; onDismiss() },
+            icon = {
+                Icon(Icons.Default.CreditCard, contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary)
+            },
+            title = { Text("¿Reemplazar tarjeta guardada?", fontWeight = FontWeight.Bold) },
+            text = {
+                Text(
+                    "Tienes guardada ${tarjetaGuardada?.tipo ?: ""} ${tarjetaGuardada?.numeroEnmascarado ?: ""}. " +
+                            "¿Deseas reemplazarla con la tarjeta que acabas de usar?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val tipoDetectado = when {
+                            numeroTarjeta.startsWith("4") -> "Visa"
+                            numeroTarjeta.startsWith("5") -> "Mastercard"
+                            numeroTarjeta.startsWith("3") -> "Amex"
+                            else -> "Otra"
+                        }
+                        viewModel?.guardarTarjeta(numeroTarjeta, tipoDetectado)
+                        showReemplazarDialog = false
+                        onDismiss()
+                    },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Reemplazar") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showReemplazarDialog = false
+                    onDismiss()
+                }) { Text("Mantener la anterior") }
             }
         )
     }
