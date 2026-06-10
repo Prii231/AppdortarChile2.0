@@ -9,11 +9,11 @@
 
 ---
 
-## 📖 Sobre el Proyecto
+##  Sobre el Proyecto
 
 Este proyecto nace en el contexto del **Taller Aplicado de Programación**, con el objetivo de resolver la fragmentación de información sobre adopciones y el abandono animal. La aplicación permite a los usuarios no solo buscar a su próximo compañero, sino también reportar animales en peligro mediante geolocalización en tiempo real.
 
-### 🎯 Objetivos
+###  Objetivos
 - **General:** Desarrollar una aplicación móvil funcional que gestione el ciclo de adopción y reportes comunitarios.
 - **Específicos:**
   - Implementar una base de datos local robusta con Room.
@@ -23,7 +23,7 @@ Este proyecto nace en el contexto del **Taller Aplicado de Programación**, con 
 
 ---
 
-## ✨ Características Principales
+##  Características Principales
 
 - **Gestión de Adopciones:** Publicación de perfiles detallados con fotos, filtros por región y tipo de mascota.
 - **Mapa de Urgencias:** Reporte de mascotas perdidas o heridas usando **OSMDroid (OpenStreetMap)**.
@@ -33,7 +33,7 @@ Este proyecto nace en el contexto del **Taller Aplicado de Programación**, con 
 
 ---
 
-## 🛠️ Stack Tecnológico
+##  Stack Tecnológico
 
 - **Lenguaje:** [Kotlin](https://kotlinlang.org/)
 - **UI:** [Jetpack Compose](https://developer.android.com/jetpack/compose)
