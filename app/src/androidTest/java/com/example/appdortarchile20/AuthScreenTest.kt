@@ -100,12 +100,6 @@ class AuthScreenTest {
         composeTestRule.onNodeWithText("Sesión cerrada").assertIsDisplayed()
     }
 
-    // ==========================================
-    // ⚠️ MOCKS: COMPOSABLES DE APOYO PARA EVITAR ROJOS
-    // Reemplaza estas funciones por las reales de tu app 
-    // usando Alt + Enter para importar tus pantallas
-    // ==========================================
-
     @Composable
     fun MockLoginScreen() {
         var mensaje by remember { mutableStateOf("") }
