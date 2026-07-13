@@ -13,7 +13,7 @@ import com.example.appdortarchile20.data.model.User
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
+import android.database.sqlite.SQLiteConstraintException
 sealed class LoginState {
     object Idle : LoginState()
     data class Success(val user: User) : LoginState()
@@ -53,10 +53,16 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
 
     fun register(user: User) {
         viewModelScope.launch {
+            if (dao.existeEmail(user.email) > 0) {
+                _loginState.value = LoginState.Error("Este correo ya está registrado")
+                return@launch
+            }
             try {
                 dao.registerUser(user)
                 _currentUser.value = user
                 _loginState.value = LoginState.Success(user)
+            } catch (e: android.database.sqlite.SQLiteConstraintException) {
+                _loginState.value = LoginState.Error("Este correo ya está registrado")
             } catch (e: Exception) {
                 _loginState.value = LoginState.Error("Error al registrar: ${e.message}")
             }
@@ -205,8 +211,9 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         return dao.getUserByEmail(email)?.name ?: email
     }
 
-    suspend fun getTituloReporte(reporteId: Int): String {
-        return dao.getReporteById(-reporteId)?.titulo ?: ""
+    suspend fun getTituloReporte(petId: Int): String {
+        val reporteId = if (petId < 0) -petId else petId
+        return dao.getReporteById(reporteId)?.titulo ?: ""
     }
     private val _montosRecaudados = MutableStateFlow<Map<Int, Int>>(emptyMap())
     val montosRecaudados: StateFlow<Map<Int, Int>> = _montosRecaudados

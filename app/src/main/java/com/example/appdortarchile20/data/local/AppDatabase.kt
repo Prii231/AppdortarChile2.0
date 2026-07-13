@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AppDao {
     // --- USUARIOS ---
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun registerUser(user: User)
 
     @Update
@@ -16,6 +16,9 @@ interface AppDao {
 
     @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
     suspend fun getUserByEmail(email: String): User?
+
+    @Query("SELECT COUNT(*) FROM users WHERE email = :email")
+    suspend fun existeEmail(email: String): Int
 
     // --- MASCOTAS ---
     @Insert(onConflict = OnConflictStrategy.IGNORE)
