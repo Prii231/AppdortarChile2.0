@@ -27,7 +27,7 @@ Este proyecto nace en el contexto del **Taller Aplicado de Programación**, con 
 
 - **Gestión de Adopciones:** Publicación de perfiles detallados con fotos, filtros por región y tipo de mascota.
 - **Mapa de Urgencias:** Reporte de mascotas perdidas o heridas usando **OSMDroid (OpenStreetMap)**.
-- **Autenticación Segura:** Registro e inicio de sesión de usuarios con persistencia local.
+- **Autenticación Segura:** Autenticación con persistencia local.
 - **Blog y Educación:** Sección informativa sobre cuidados y tenencia responsable.
 - **Crowdfunding Simulado:** Interfaz para apoyar económicamente a refugios mediante una pasarela de pagos en modo Sandbox/Mock.
 
@@ -40,7 +40,7 @@ Este proyecto nace en el contexto del **Taller Aplicado de Programación**, con 
 - **Arquitectura:** MVVM (Model-View-ViewModel)
 - **Base de Datos:** Room Persistence Library (SQLite)
 - **Mapas:** OSMDroid
-- **Inyección de Dependencias:** (Si usan Hilt o manual, especificar aquí)
+- **Inyección de Dependencias:** Manual (AndroidViewModel + singleton de AppDatabase)
 - **Gestión de Hilos:** Kotlin Coroutines & Flow
 
 ---
