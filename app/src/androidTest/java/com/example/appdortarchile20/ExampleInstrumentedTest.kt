@@ -22,4 +22,3 @@ class ExampleInstrumentedTest {
         assertEquals("com.example.appdortarchile20", appContext.packageName)
     }
 }
-
